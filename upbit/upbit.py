@@ -64,15 +64,23 @@ class RemainingReq:
 
 class Upbit:
     def __init__(self,
-                 access_key: str = None,
-                 secret_key: str = None,
+                 access_key: str | None = None,
+                 secret_key: str | None = None,
                  *,
                  timeout: float | Tuple[float, float] | None = (6, 30),
                  ):
         """
 
-        :param access_key:
-        :param secret_key:
+        :param access_key: 업비트 API Access Key
+            Quotation API만 사용한다면 설정하지 않아도 됩니다.
+            Exchange API를 사용하려면 필수로 설정해야 합니다.
+            설정하지 않고 관련 메소드를 요청하면 ApiKeyError 예외가 발생합니다.
+
+        :param secret_key: 업비트 API Secret Key
+            Quotation API만 사용한다면 설정하지 않아도 됩니다.
+            Exchange API를 사용하려면 필수로 설정해야 합니다.
+            설정하지 않고 관련 메소드를 요청하면 ApiKeyError 예외가 발생합니다.
+
         :param timeout: 업비트 API request 의 기본 timeout 설정값. (connect, read)
             예) connect, read timeout 함께 설정시 timeout=5
             예) connect, read timeout 따로 설정시 timeout=(6, 12)
