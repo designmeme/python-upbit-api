@@ -4,7 +4,7 @@ import hashlib
 import logging
 import re
 import uuid
-from typing import Any, Optional, Literal, Dict, Callable
+from typing import Any, Optional, Literal, Dict, Callable, Tuple
 from urllib.parse import urlencode, unquote
 
 import jwt
@@ -63,7 +63,24 @@ class RemainingReq:
 
 
 class Upbit:
-    def __init__(self, access_key: str = None, secret_key: str = None):
+    def __init__(self,
+                 access_key: str = None,
+                 secret_key: str = None,
+                 *,
+                 timeout: float | Tuple[float, float] | None = (6, 30),
+                 ):
+        """
+
+        :param access_key:
+        :param secret_key:
+        :param timeout: 업비트 API request 의 기본 timeout 설정값. (connect, read)
+            예) connect, read timeout 함께 설정시 timeout=5
+            예) connect, read timeout 따로 설정시 timeout=(6, 12)
+            예) None 인 경우 무한 대기
+            업비트 서버 점검시 연결 되지 않으며 커넥션이 무한 대기 상태가 됩니다. 이를 방지를 위해 적절한 timout 값을 설정하길 권장합니다.
+            참고: https://requests.readthedocs.io/en/latest/user/advanced/#timeouts
+        """
+
         self._endpoint = "https://api.upbit.com/v1"
 
         self._access_key = access_key
@@ -92,8 +109,7 @@ class Upbit:
             raise_on_status=True,
         )
         self._session.mount(self._endpoint, HTTPAdapter(max_retries=retry))
-        # 서버 점검시 연결 되지 않음. 무한 대기 방지를 위해 timout 설정. todo check 2초로 설정해도 20초 정도 걸림.
-        self._session.request = functools.partial(self._session.request, timeout=2)
+        self._session.request = functools.partial(self._session.request, timeout=timeout)
 
         self._logger = logging.getLogger(__name__)
 
