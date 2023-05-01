@@ -2,6 +2,12 @@ from pathlib import Path
 
 from setuptools import setup, find_packages
 
+# Should be one of:
+# 'Development Status :: 3 - Alpha'
+# 'Development Status :: 4 - Beta'
+# 'Development Status :: 5 - Production/Stable'
+release_status = "Development Status :: 0 - Alpha"
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
@@ -31,7 +37,13 @@ setup(
     packages=find_packages(),
     install_requires=get_requirements(),
     classifiers=[
+        release_status,
+        "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
