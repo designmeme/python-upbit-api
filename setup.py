@@ -29,12 +29,17 @@ def get_requirements():
 setup(
     name='python-upbit-api',
     version=version,
-    author='이지혜 Lee Jihye',
-    author_email='ghe.lee19@gmail.com',
     description='Python Upbit API Wrapper',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/designmeme/python-upbit-api',
+    project_urls={
+        'Source': 'https://github.com/designmeme/python-upbit-api',
+        'Tracker': 'https://github.com/designmeme/python-upbit-api/issues',
+    },
+    author='이지혜 Lee Jihye',
+    author_email='ghe.lee19@gmail.com',
+    python_requires='>=3.8',
     packages=find_packages(),
     install_requires=get_requirements(),
     # 참고: https://pypi.org/classifiers/
@@ -49,5 +54,4 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.8',
 )
