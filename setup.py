@@ -13,18 +13,12 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 
-def get_requirements():
-    """Build the requirements list for this project"""
-    requirements_list = []
-
-    with Path("requirements.txt").open() as reqs:
-        for install in reqs:
-            if install.startswith("#"):
-                continue
-            requirements_list.append(install.strip())
-
-    return requirements_list
-
+install_requires = []
+with open("requirements.txt", "r") as reqs:
+    for install in reqs:
+        if install.startswith("#"):
+            continue
+        install_requires.append(install.strip())
 
 setup(
     name='python-upbit-api',
@@ -41,7 +35,7 @@ setup(
     author_email='ghe.lee19@gmail.com',
     python_requires='>=3.8',
     packages=find_packages(),
-    install_requires=get_requirements(),
+    install_requires=install_requires,
     # 참고: https://pypi.org/classifiers/
     classifiers=[
         release_status,
