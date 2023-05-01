@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.2](https://github.com/designmeme/python-upbit-api/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2023-05-01)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.2 ([c1e6ded](https://github.com/designmeme/python-upbit-api/commit/c1e6deda85796bdf23de75149bc4ebf4961e37b7))
+
 ## [1.0.0-alpha.1](https://github.com/designmeme/python-upbit-api/compare/v1.0.0-alpha...v1.0.0-alpha.1) (2023-05-01)
 
 
