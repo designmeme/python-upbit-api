@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 # 'Development Status :: 3 - Alpha'
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
-release_status = "Development Status :: 1 - Alpha"
+release_status = "Development Status :: 3 - Alpha"
 version = '1.0.0-alpha'
 
 with open("README.md", "r") as fh:
@@ -37,6 +37,7 @@ setup(
     url='https://github.com/designmeme/python-upbit-api',
     packages=find_packages(),
     install_requires=get_requirements(),
+    # 참고: https://pypi.org/classifiers/
     classifiers=[
         release_status,
         "Programming Language :: Python",
