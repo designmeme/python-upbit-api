@@ -3,9 +3,6 @@
 # 이지혜 Lee Jihye <ghe.lee19@gmail.com>
 """A library that provides a Python interface to the Upbit API"""
 
-__author__ = "ghe.lee19@gmail.com"
-__version__ = "0.1.0"
-
 __all__ = [
 ]
 
