@@ -6,7 +6,8 @@ from setuptools import setup, find_packages
 # 'Development Status :: 3 - Alpha'
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
-release_status = "Development Status :: 0 - Alpha"
+release_status = "Development Status :: 1 - Alpha"
+version = '1.0.0-alpha'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -27,7 +28,7 @@ def get_requirements():
 
 setup(
     name='python-upbit-api',
-    version='0.1.0-alpha',
+    version=version,
     author='이지혜 Lee Jihye',
     author_email='ghe.lee19@gmail.com',
     description='Python Upbit API Wrapper',
