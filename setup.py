@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from setuptools import setup, find_packages
 
 # Should be one of:
