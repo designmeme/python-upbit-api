@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 # 'Development Status :: 4 - Beta'
 # 'Development Status :: 5 - Production/Stable'
 release_status = "Development Status :: 3 - Alpha"
-version = '1.0.0-alpha'
+version = '1.0.0-alpha.1'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
