@@ -27,7 +27,7 @@ def get_requirements():
 
 setup(
     name='python-upbit-api',
-    version='0.1.0',
+    version='0.1.0-alpha',
     author='이지혜 Lee Jihye',
     author_email='ghe.lee19@gmail.com',
     description='Python Upbit API Wrapper',
