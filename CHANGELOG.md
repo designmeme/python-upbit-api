@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-alpha.1](https://github.com/designmeme/python-upbit-api/compare/v1.0.0-alpha...v1.0.0-alpha.1) (2023-05-01)
+
+
+### Bug Fixes
+
+* install_requires 설정 오류 수정 ([354cb9e](https://github.com/designmeme/python-upbit-api/commit/354cb9e4057bc1266a566d8a9f8684006e9bf80c))
+
+
+### Miscellaneous Chores
+
+* 안 쓰는 패키지 임포트 삭제 ([9005227](https://github.com/designmeme/python-upbit-api/commit/90052274ebc57831e5ab0e3ea99fd8ce192eee78))
+
 ## 1.0.0-alpha (2023-05-01)
 
 
