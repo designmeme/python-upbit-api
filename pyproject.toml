@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+#where = ["src"]  # ["."] by default
+include = ["upbit*"]  # ["*"] by default
+#exclude = ["tests*"]  # empty by default
+#namespaces = true  # true by default
+
+[project]
+name = "python-upbit-api"
+version = "1.0.0-alpha.2"
+authors = [
+    {name = "이지혜 Lee Jihye", email = "ghe.lee19@gmail.com"},
+]
+maintainers = [
+    {name = "이지혜 Lee Jihye", email = "ghe.lee19@gmail.com"},
+]
+description = "Python Upbit API Wrapper"
+readme = "README.md"
+requires-python = ">=3.8"
+#keywords = ["one", "two"]
+license = {file = "LICENSE"}
+classifiers = [
+    # 참고: https://pypi.org/classifiers/
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests >= 2.0.0",
+    "urllib3 >= 1.0.0",
+    "pyjwt >= 2.0.0",
+]
+#dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/designmeme/python-upbit-api"
+repository = "https://github.com/designmeme/python-upbit-api.git"
+changelog = "https://github.com/designmeme/python-upbit-api/blob/main/CHANGELOG.md"
+issues = "https://github.com/designmeme/python-upbit-api/issues"
