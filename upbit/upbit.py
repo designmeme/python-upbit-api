@@ -160,8 +160,13 @@ class Upbit:
                         error_code = error_body.get("name")
                         error_msg = error_body.get("message")
                         error_exception = _ERROR_EXCEPTION_DICT.get(error_code)
+
                         if error_exception:
                             raise error_exception(f"Upbit Client Error {status_code} {error_code=!r} {error_msg=!r}", e)
+                        else:
+                            # 명시되지 않은 에러가 발생한 경우
+                            raise UpbitClientError(f"Upbit Client Error {status_code} {error_code=!r} {error_msg=!r}", e)
+                    # body 내용이 json 형태가 아닌 경우
                     except requests.JSONDecodeError:
                         raise UpbitClientError(f'Upbit Client Error {status_code} {e.response.reason}', e)
 
@@ -170,7 +175,7 @@ class Upbit:
                     raise UpbitClientError(f'Upbit Client Error {status_code} {e.response.reason}', e)
 
                 # Upbit Server error 처리
-                elif 500 <= self.status_code < 600:
+                elif 500 <= status_code < 600:
                     raise UpbitServerError(f'Upbit Server Error {status_code} {e.response.reason}', e)
 
                 # 방어적 에러 작성 - 발생하지 않아야 함.
