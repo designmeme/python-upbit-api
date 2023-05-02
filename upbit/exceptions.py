@@ -19,17 +19,17 @@ https://docs.upbit.com/docs/api-%EC%A3%BC%EC%9A%94-%EC%97%90%EB%9F%AC-%EC%BD%94%
 from requests import HTTPError
 
 
-class UpbitError(HTTPError):
+class UpbitHTTPError(HTTPError):
     def __init__(self, msg: str, ex: HTTPError):
         # Invoke the super class's __init__
-        super(UpbitError, self).__init__(msg, response=ex.response)
+        super(UpbitHTTPError, self).__init__(msg, response=ex.response)
 
 
-class UpbitClientError(UpbitError):
+class UpbitClientError(UpbitHTTPError):
     """기타 업비트 클라이언트 에러 발생"""
 
 
-class UpbitServerError(UpbitError):
+class UpbitServerError(UpbitHTTPError):
     """기타 업비트 서버 에러 발생"""
 
 

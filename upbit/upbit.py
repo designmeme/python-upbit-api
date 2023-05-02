@@ -19,7 +19,7 @@ from upbit.exceptions import (
     _ERROR_EXCEPTION_DICT,
     TooManyRequests,
     UpbitServerError,
-    UpbitError,
+    UpbitHTTPError,
     UpbitClientError,
     ApiKeyError,
     RemainingReqValueError,
@@ -174,7 +174,7 @@ class Upbit:
                     raise UpbitServerError(f'Upbit Server Error {status_code} {e.response.reason}', e)
 
                 # 방어적 에러 작성 - 발생하지 않아야 함.
-                raise UpbitError(f'Upbit Error {status_code} {e.response.reason}', e)
+                raise UpbitHTTPError(f'Upbit Error {status_code} {e.response.reason}', e)
 
         return wrapper
 
