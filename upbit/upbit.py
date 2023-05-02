@@ -115,7 +115,7 @@ class Upbit:
 
         self._logger = logging.getLogger(__name__)
 
-    def _request_wrapper(func: Callable):
+    def _request_wrapper(func: Callable) -> Callable:
         """
         업비트 API 요청 래퍼
 
@@ -211,11 +211,11 @@ class Upbit:
             self._logger.warning(f"Upbit API 잔여 요청수 처리 에러. {remaining_req=!r} {e!r}")
             pass
 
-    def _auth_guard(func: Callable):
+    def _auth_guard(func: Callable) -> Callable:
         """인증이 필요한 메서드 호출시 API 키가 셋팅되어 있는지 확인하는 가드"""
 
         @functools.wraps(func)
-        def wrapper(self, *args, **kwargs) -> Callable:
+        def wrapper(self, *args, **kwargs) -> Any:
             if not self._access_key or not self._secret_key:
                 raise ApiKeyError(f'{func.__name__} 메서드는 API Key 가 필요해요. '
                                   f'Upbit 인스턴스 생성시 access_key, secret_key 값을 인자로 넣어주세요.')
