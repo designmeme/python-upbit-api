@@ -102,7 +102,7 @@ class ApiKeyError(Exception):
     """access_key 혹은 secret_key 가 필요한 경우 에러 발생"""
 
 
-class RemainingReqValueError(Exception):
+class InvalidRemainingReq(Exception):
     """Remaining-Req 헤더값이 규격에 맞지 않는 경우 에러 발생"""
 
 

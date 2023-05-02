@@ -29,5 +29,5 @@ from .exceptions import (
     NoAuthorizationIP,
     OutOfScope,
     ApiKeyError,
-    RemainingReqValueError,
+    InvalidRemainingReq,
 )

@@ -21,7 +21,7 @@ from upbit.exceptions import (
     UpbitHTTPError,
     UpbitClientError,
     ApiKeyError,
-    RemainingReqValueError,
+    InvalidRemainingReq,
 )
 
 # 잔여 요청 그룹
@@ -51,9 +51,12 @@ class RemainingReq:
         pattern = re.compile(r"group=([a-z\-]+); min=([0-9]+); sec=([0-9]+)")
         matched = pattern.search(remaining_req)
 
-        self.group: RequestGroup = matched.group(1)
-        self.minute: int = int(matched.group(2))
-        self.second: int = int(matched.group(3))
+        try:
+            self.group: RequestGroup = matched.group(1)
+            self.minute: int = int(matched.group(2))
+            self.second: int = int(matched.group(3))
+        except AttributeError:
+            raise InvalidRemainingReq(f'Invalid Remaining Req {remaining_req=!r}')
         self.updated: datetime.datetime = datetime.datetime.now()
 
     def __str__(self):
@@ -200,8 +203,8 @@ class Upbit:
             self._remaining_reqs[rr.group] = rr
             self._logger.debug(f"Upbit API 잔여 요청수 {rr}")
             return rr
-        except RemainingReqValueError as e:
-            self._logger.warning(f"Upbit API 잔여 요청수 처리 RemainingReqValueError. {e!r}")
+        except InvalidRemainingReq as e:
+            self._logger.warning(f"Upbit API 잔여 요청수 처리 InvalidRemainingReq. {e!r}")
             pass
         except Exception as e:
             self._logger.warning(f"Upbit API 잔여 요청수 처리 에러. {remaining_req=!r} {e!r}")
