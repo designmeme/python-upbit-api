@@ -123,6 +123,7 @@ class Upbit:
         2) HTTPError를 UpbitError로 변환
         """
 
+        @functools.wraps(func)
         def wrapper(self, *args: Any, **kwargs: Dict[str, Any]) -> Response:
             remaining_req: Optional[RemainingReq] = None
 
@@ -213,6 +214,7 @@ class Upbit:
     def _auth_guard(func: Callable):
         """인증이 필요한 메서드 호출시 API 키가 셋팅되어 있는지 확인하는 가드"""
 
+        @functools.wraps(func)
         def wrapper(self, *args, **kwargs) -> Callable:
             if not self._access_key or not self._secret_key:
                 raise ApiKeyError(f'{func.__name__} 메서드는 API Key 가 필요해요. '
