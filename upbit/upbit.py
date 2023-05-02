@@ -13,7 +13,6 @@ import jwt
 import requests
 from requests import Response
 from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
 
 from upbit.exceptions import (
     _ERROR_EXCEPTION_DICT,
@@ -69,6 +68,7 @@ class Upbit:
                  access_key: str | None = None,
                  secret_key: str | None = None,
                  *,
+                 http_adapter: HTTPAdapter | None = None,
                  timeout: float | Tuple[float, float] | None = (6, 30),
                  ):
         """
@@ -82,6 +82,8 @@ class Upbit:
             Quotation API만 사용한다면 설정하지 않아도 됩니다.
             Exchange API를 사용하려면 필수로 설정해야 합니다.
             설정하지 않고 관련 메소드를 요청하면 ApiKeyError 예외가 발생합니다.
+
+        :param http_adapter: 업비트 API request session 에 설정 할 HTTPAdapter
 
         :param timeout: 업비트 API request 의 기본 timeout 설정값. (connect, read)
             예) connect, read timeout 함께 설정시 timeout=5
@@ -100,25 +102,12 @@ class Upbit:
         # - 키: group 명 / 값: RemainingReq 인스턴스
         self._remaining_reqs: Dict[RequestGroup, RemainingReq] = {}
 
-        # 서버에러시 자동으로 재시도하도록 max_retries 설정
+        # Requests Session 인스턴스 사용하여 모든 요청을 처리함.
         self._session = requests.Session()
-        # https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry
-        retry = Retry(
-            total=None,
-            # 각자 설정해야 Retry 발생시 로그에서 어떤 요인인지 쉽게 알 수 있음.
-            redirect=5,
-            status=5,
-            connect=0,
-            read=0,
-            other=0,
-            backoff_factor=1,
-            # 기본값에 post 추가
-            allowed_methods=frozenset({'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE', 'POST'}),
-            # 서버 에러 - todo check 429 추가?
-            status_forcelist=tuple(range(500, 512)),
-            raise_on_status=True,
-        )
-        self._session.mount(self._endpoint, HTTPAdapter(max_retries=retry))
+
+        if http_adapter and isinstance(http_adapter, HTTPAdapter):
+            self._session.mount(self._endpoint, http_adapter)
+
         self._session.request = functools.partial(self._session.request, timeout=timeout)
 
         self._logger = logging.getLogger(__name__)
