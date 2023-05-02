@@ -1,19 +1,20 @@
 """
 upbit.exceptions
 
-요청 수 제한 (429)
-https://docs.upbit.com/docs/user-request-guide
+Upbit API Error 공식 페이지 참고
+- 요청 수 제한 (429)
+    https://docs.upbit.com/docs/user-request-guide
 
-API 주요 에러 코드 목록 (400, 401)
-https://docs.upbit.com/docs/api-%EC%A3%BC%EC%9A%94-%EC%97%90%EB%9F%AC-%EC%BD%94%EB%93%9C-%EB%AA%A9%EB%A1%9D
+- API 주요 에러 코드 목록 (400, 401)
+    https://docs.upbit.com/docs/api-%EC%A3%BC%EC%9A%94-%EC%97%90%EB%9F%AC-%EC%BD%94%EB%93%9C-%EB%AA%A9%EB%A1%9D
 
-에러 발생시 JSON body 구조
-{
-  "error": {
-    "message": "<오류에 대한 설명>",
-    "name": "<오류 코드>"
-  }
-}
+    에러 발생시 JSON body 구조
+    {
+      "error": {
+        "name": "<오류 코드>"
+        "message": "<오류에 대한 설명>",
+      }
+    }
 """
 
 from requests import HTTPError
@@ -105,8 +106,9 @@ class RemainingReqValueError(Exception):
     """Remaining-Req 헤더값이 규격에 맞지 않는 경우 에러 발생"""
 
 
-# key: error.name (오류 코드)
-# value: 오류 코드에 맞는 Exception
+"""
+Upbit API 오류 코드와 1:1로 맞춘 UpbitHTTPError 예외 클래스를 담은 딕셔너리
+"""
 _ERROR_EXCEPTION_DICT = {
     "create_ask_error": CreateAskError,
     "create_bid_error": CreateBidError,
