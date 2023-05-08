@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+import requests_mock
 
 from upbit import RemainingReq, InvalidRemainingReq, Upbit
 
@@ -30,6 +31,7 @@ class TestRemainingReq:
         up = Upbit()
         assert up.get_remaining_reqs('market') is None
 
-        # todo mock
-        up.get_markets()
-        assert isinstance(up.get_remaining_reqs('market'), RemainingReq)
+        with requests_mock.Mocker() as mock:
+            mock.get(requests_mock.ANY, headers={'Remaining-Req': 'group=market; min=60; sec=10'})
+            up.get_markets()
+            assert isinstance(up.get_remaining_reqs('market'), RemainingReq)
