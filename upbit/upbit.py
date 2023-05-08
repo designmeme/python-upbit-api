@@ -141,7 +141,7 @@ class Upbit:
                 status_code = e.response.status_code
 
                 # TooManyRequests 에러 처리
-                if status_code == requests.codes.too_many_requests:
+                if status_code == 423:
                     # 이 에러는 규격화된 Upbit 에러 JSON 바디를 갖지 않음.
                     raise TooManyRequests(f"Upbit TooManyRequests Error {status_code} Remaining-Req={remaining_req}", e)
 
