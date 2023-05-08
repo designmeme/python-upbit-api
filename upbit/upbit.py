@@ -18,7 +18,6 @@ from upbit.exceptions import (
     _ERROR_EXCEPTION_DICT,
     TooManyRequests,
     UpbitServerError,
-    UpbitHTTPError,
     UpbitClientError,
     ApiKeyError,
     InvalidRemainingReq,
@@ -170,9 +169,6 @@ class Upbit:
                 # Upbit Server error 처리
                 elif 500 <= status_code < 600:
                     raise UpbitServerError(f'Upbit Server Error {status_code} {e.response.reason}', e)
-
-                # 방어적 에러 작성 - 발생하지 않아야 함.
-                raise UpbitHTTPError(f'Upbit Error {status_code} {e.response.reason}', e)
 
         return wrapper
 
