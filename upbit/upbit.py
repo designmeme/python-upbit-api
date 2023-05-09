@@ -5,7 +5,7 @@ import functools
 import hashlib
 import logging
 import re
-import uuid
+import uuid as _uuid
 from typing import Any, Optional, Literal, Dict, Callable, Tuple
 from urllib.parse import urlencode, unquote
 
@@ -23,6 +23,18 @@ from upbit.exceptions import (
     InvalidRemainingReq,
 )
 
+OrderBy = Literal['asc', 'desc']
+OrderState = Literal['wait', 'watch', 'done', 'cancel']
+OrderSide = Literal['bid', 'ask']
+OrderType = Literal['limit', 'price', 'market']
+TransactionStatus = Literal['WAITING', 'PROCESSING', 'DONE', 'FAILED', 'CANCELLED', 'REJECTED']
+TwoFactorType = Literal['kakao_pay', 'naver']
+TransactionType = Literal['default', 'internal']
+WalletState = Literal['working', 'withdraw_only', 'deposit_only', 'paused', 'unsupported']
+BlockState = Literal['normal', 'delayed', 'inactive']
+MarketWarningType = Literal['NONE', 'CAUTION']
+MinuteUnit = Literal[1, 3, 5, 15, 10, 30, 60, 240]
+
 # 잔여 요청 그룹
 RequestGroup = Literal[
     # Exchange API
@@ -36,15 +48,20 @@ RequestGroup = Literal[
 class RemainingReq:
     """
     잔여 요청수 클래스
-    참고) https://docs.upbit.com/docs/user-request-guide
+    Upbit API Doc: https://docs.upbit.com/docs/user-request-guide
 
-    group: RequestGroup 잔여 요청 그룹명
-    minute: 그룹별 분당 남은 요청수.
-    second: 그룹별 초당 남은 요청수.
-    updated: 요청수 응답을 저장한 일시.
+    Args:
+        group: RequestGroup 잔여 요청 그룹명
+        minute: 그룹별 분당 남은 요청수.
+        second: 그룹별 초당 남은 요청수.
+        updated: 요청수 응답을 저장한 일시.
     """
 
     def __init__(self, remaining_req: str):
+        """
+
+        :param remaining_req:
+        """
         self._remaining_req = remaining_req
 
         pattern = re.compile(r"group=([a-z\-]+); min=([0-9]+); sec=([0-9]+)")
@@ -120,6 +137,8 @@ class Upbit:
 
         1) 잔여 요청수 처리
         2) HTTPError를 UpbitError로 변환
+
+        :raises TooManyRequests: 응답 코드가 423인 경우 발생
         """
 
         @functools.wraps(func)
@@ -189,10 +208,10 @@ class Upbit:
         return self._session.delete(url, **kwargs)
 
     def _process_remaining_req(self, remaining_req: str) -> Optional[RemainingReq]:
-        """
-        Remaining-Req 응답 헤더를 캐시하고 RemainingReq 인스턴스로 변환하여 반환한다.
+        """Remaining-Req 응답 헤더를 캐시하고 RemainingReq 인스턴스로 변환하여 반환한다.
 
         :param remaining_req: Remaining-Req 응답 헤더값
+
         :return: RemainingReq 인스턴스
         """
         try:
@@ -208,7 +227,10 @@ class Upbit:
             pass
 
     def _auth_guard(func: Callable) -> Callable:
-        """인증이 필요한 메서드 호출시 API 키가 셋팅되어 있는지 확인하는 가드"""
+        """인증이 필요한 메서드 호출시 API 키가 셋팅되어 있는지 확인하는 가드
+
+        :except ApiKeyError: 인증이 필요한 메소드를 인증 정보 없이 호출시 발생
+        """
 
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs) -> Any:
@@ -223,7 +245,7 @@ class Upbit:
     def _get_request_headers(self, query: Dict = None) -> Dict:
         payload = {
             "access_key": self._access_key,
-            "nonce": str(uuid.uuid4())
+            "nonce": str(_uuid.uuid4())
         }
 
         if query is not None:
@@ -241,10 +263,10 @@ class Upbit:
         return headers
 
     def get_remaining_reqs(self, group: RequestGroup) -> Optional[RemainingReq]:
-        """
-        그룹의 잔여 요청수 정보 반환
+        """그룹의 잔여 요청수 정보 반환
 
         :param group: RequestGroup 잔여 요청 그룹
+
         :return: RemainingReq 잔여 요청 정보. 이전 응답 헤더에서 얻은 정보를 저장해 놓은 가장 최신 정보.
         """
         return self._remaining_reqs.get(group)
@@ -254,12 +276,29 @@ class Upbit:
     # --------------------------------------------------------------------------
 
     @_auth_guard
-    def get_accounts(self, **kwargs) -> Response:
-        """
-        전체 계좌 조회
-        https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EA%B3%84%EC%A2%8C-%EC%A1%B0%ED%9A%8C
-        :return:
-            data example:
+    def get_accounts(self,
+                     **kwargs) -> Response:
+        """전체 계좌 조회
+
+        내가 보유한 자산 리스트를 보여줍니다.
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EA%B3%84%EC%A2%8C-%EC%A1%B0%ED%9A%8C>`_
+
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_accounts()
+            print(res.json())
+
             [{
                 'currency': 'KRW',
                 'balance': '628906.97823303',
@@ -286,13 +325,29 @@ class Upbit:
     # --------------------------------------------------------------------------
 
     @_auth_guard
-    def get_order_chance(self, market: str = "KRW-BTC", **kwargs) -> Response:
-        """
-        주문 가능 정보 조회
-        https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8-%EA%B0%80%EB%8A%A5-%EC%A0%95%EB%B3%B4
+    def get_order_chance(self,
+                         market: str,
+                         **kwargs) -> Response:
+        """주문 가능 정보 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8-%EA%B0%80%EB%8A%A5-%EC%A0%95%EB%B3%B4>`_
+
         :param market: 마켓 코드 (ex. KRW-BTC)
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_order_chance('KRW-BTC')
+            print(res.json())
+
             {'ask_account': {'avg_buy_price': '28560783.8337',
                              'avg_buy_price_modified': False,
                              'balance': '0',
@@ -329,14 +384,33 @@ class Upbit:
         return self._request_get(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def get_order(self, order_uuid: str = None, identifier: str = None, **kwargs) -> Response:
-        """
-        개별 주문 조회
-        https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%A3%BC%EB%AC%B8-%EC%A1%B0%ED%9A%8C
-        :param order_uuid: 주문 UUID
+    def get_order(self,
+                  uuid: Optional[str] = None,
+                  identifier: Optional[str] = None,
+                  **kwargs) -> Response:
+        """개별 주문 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%A3%BC%EB%AC%B8-%EC%A1%B0%ED%9A%8C>`_
+
+        .. note:: uuid 혹은 identifier 둘 중 하나의 값이 반드시 포함되어야 합니다.
+
+        :param uuid: 주문 UUID
         :param identifier: 조회용 사용자 지정 값
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_order('d7c96420-a9ab-4ae8-a461-3db412427fb3')
+            print(res.json())
+
             {
                 'created_at': '2023-02-06T11:00:45+09:00',
                 'executed_volume': '132.99843443',
@@ -364,7 +438,7 @@ class Upbit:
         """
         url = self._endpoint + "/order"
         params = {
-            "uuid": order_uuid,
+            "uuid": uuid,
             "identifier": identifier,
         }
         headers = self._get_request_headers(params)
@@ -372,22 +446,43 @@ class Upbit:
         return self._request_get(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def get_orders(self, market: str = None, uuids: [str] = None, identifiers: [str] = None,
-                   state: str = 'wait', states: [str] = None, page: int = 1, limit: int = 100,
-                   order_by: str = 'desc', **kwargs) -> Response:
-        """
-        주문 리스트 조회
-        https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C
-        :param market: 마켓 아이디
-        :param uuids: 주문 UUID의 목록
-        :param identifiers: 주문 identifier의 목록
-        :param state: 주문 상태 wait, watch, done, cancel
-        :param states: 주문 상태의 목록
-        :param page: 페이지 수, default: 1
-        :param limit: 요청 개수, default: 100
-        :param order_by: 정렬 방식 asc, desc(default)
-        :return:
-            data example:
+    def get_orders(self,
+                   market: Optional[str] = None,
+                   uuids: Optional[list[str]] = None,
+                   identifiers: Optional[list[str]] = None,
+                   state: OrderState = 'wait',
+                   states: Optional[list[OrderState]] = None,
+                   page: int = 1,
+                   limit: int = 100,
+                   order_by: OrderBy = 'desc',
+                   **kwargs) -> Response:
+        """주문 리스트 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C>`_
+
+        :param market: 마켓 코드 (ex. KRW-BTC)
+        :param uuids: 주문 UUID 리스트
+        :param identifiers: 주문 identifier 리스트
+        :param state: 주문 상태
+        :param states: 주문 상태 리스트
+        :param page: 페이지 수
+        :param limit: 요청 개수
+        :param order_by: 정렬 방식
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_orders(market='KRW-ELF', state='done')
+            print(res.json())
+
             [{
                 'created_at': '2023-02-15T08:00:40+09:00',
                 'executed_volume': '380.4181703',
@@ -421,14 +516,33 @@ class Upbit:
         return self._request_get(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def delete_order(self, order_uuid: str = None, identifier: str = None, **kwargs) -> Response:
-        """
-        주문 취소 접수
-        https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8-%EC%B7%A8%EC%86%8C
-        :param order_uuid: 주문 UUID
+    def delete_order(self,
+                     uuid: Optional[str] = None,
+                     identifier: Optional[str] = None,
+                     **kwargs) -> Response:
+        """주문 취소 접수
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8-%EC%B7%A8%EC%86%8C>`_
+
+        .. note:: uuid 혹은 identifier 둘 중 하나의 값이 반드시 포함되어야 합니다.
+
+        :param uuid: 주문 UUID
         :param identifier: 조회용 사용자 지정 값
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.delete_order('cdd92199-2897-4e14-9448-f923320408ad')
+            print(res.json())
+
             {
                 "uuid": "cdd92199-2897-4e14-9448-f923320408ad",
                 "side": "bid",
@@ -449,7 +563,7 @@ class Upbit:
         """
         url = self._endpoint + "/order"
         params = {
-            "uuid": order_uuid,
+            "uuid": uuid,
             "identifier": identifier,
         }
         headers = self._get_request_headers(params)
@@ -457,20 +571,39 @@ class Upbit:
         return self._request_delete(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def create_order(self, market: str, side: str, ord_type: str,
-                     volume: str = None, price: str = None,
-                     identifier: str = None, **kwargs) -> Response:
-        """
-        주문하기
-        https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8%ED%95%98%EA%B8%B0
-        :param market: 마켓 ID (필수)
-        :param side: 주문 종류 (필수) - bid(매수), ask(매도)
-        :param ord_type: 주문 타입 (필수) - limit(지정가), price(시장가 매수), market(시장가 매도)
+    def create_order(self,
+                     market: str, 
+                     side: OrderSide, 
+                     ord_type: OrderType,
+                     volume: Optional[str] = None,
+                     price: Optional[str] = None,
+                     identifier: Optional[str] = None,
+                     **kwargs) -> Response:
+        """주문하기
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8%ED%95%98%EA%B8%B0>`_
+
+        :param market: 마켓 코드 (ex. KRW-BTC)
+        :param side: 주문 종류 - bid(매수), ask(매도)
+        :param ord_type: 주문 타입 - limit(지정가), price(시장가 매수), market(시장가 매도)
         :param volume: 주문량 (지정가, 시장가 매도 시 필수)
-        :param price: 주문 가격. (지정가, 시장가 매수 시 필수)
-        :param identifier: 조회용 사용자 지정 값 (선택)
-        :return:
-            data example:
+        :param price: 주문 가격 (지정가, 시장가 매수 시 필수)
+        :param identifier: 조회용 사용자 지정 값
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.create_order(market='KRW-BTC', side='bid', ord_type='limit', price='100', volume='0.01')
+            print(res.json())
+
             {
                 "uuid": "cdd92199-2897-4e14-9448-f923320408ad",
                 "side": "bid",
@@ -508,20 +641,41 @@ class Upbit:
     # --------------------------------------------------------------------------
 
     @_auth_guard
-    def get_withdraws(self, currency: str = None, state: str = None, uuids: [str] = None, txids: [str] = None,
-                      page: int = 1, limit: int = 100, order_by: str = 'desc', **kwargs) -> Response:
-        """
-        출금 리스트 조회
-        https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EC%B6%9C%EA%B8%88-%EC%A1%B0%ED%9A%8C
+    def get_withdraws(self,
+                      currency: Optional[str] = None,
+                      state: Optional[TransactionStatus] = None,
+                      uuids: Optional[list[str]] = None,
+                      txids: Optional[list[str]] = None,
+                      page: int = 1,
+                      limit: int = 100,
+                      order_by: OrderBy = 'desc',
+                      **kwargs) -> Response:
+        """출금 리스트 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EC%B6%9C%EA%B8%88-%EC%A1%B0%ED%9A%8C>`_
+
         :param currency: Currency 코드
-        :param state: 출금 상태 WAITING, PROCESSING, DONE, FAILED, CANCELLED, REJECTED
-        :param uuids: 출금 UUID의 목록
-        :param txids: 출금 TXID의 목록
-        :param page: 페이지 수, default: 1
+        :param state: 출금 상태
+        :param uuids: 출금 UUID 리스트
+        :param txids: 출금 TXID 리스트
+        :param page: 페이지 수
         :param limit: 개수 제한 (default: 100, max: 100)
-        :param order_by: 정렬 방식 asc, desc(default)
-        :return:
-            data example:
+        :param order_by: 정렬 방식
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_withdraws(currency='XRP', state='DONE')
+            print(res.json())
+
             [{
                 "type": "withdraw",
                 "uuid": "35a4f1dc-1db5-4d6b-89b5-7ec137875956",
@@ -550,15 +704,33 @@ class Upbit:
         return self._request_get(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def get_withdraw(self, data_uuid: str = None, txid: str = None, currency: str = None, **kwargs) -> Response:
-        """
-        개별 출금 조회
-        https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%B6%9C%EA%B8%88-%EC%A1%B0%ED%9A%8C
-        :param data_uuid: 출금 UUID
+    def get_withdraw(self,
+                     uuid: Optional[str] = None,
+                     txid: Optional[str] = None,
+                     currency: Optional[str] = None,
+                     **kwargs) -> Response:
+        """개별 출금 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%B6%9C%EA%B8%88-%EC%A1%B0%ED%9A%8C>`_
+
+        :param uuid: 출금 UUID
         :param txid: 출금 TXID
         :param currency: Currency 코드
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_withdraw('9f432943-54e0-40b7-825f-b6fec8b42b79')
+            print(res.json())
+
             {
                 "type": "withdraw",
                 "uuid": "9f432943-54e0-40b7-825f-b6fec8b42b79",
@@ -574,7 +746,7 @@ class Upbit:
         """
         url = self._endpoint + "/withdraw"
         params = {
-            "uuid": data_uuid,
+            "uuid": uuid,
             "txid": txid,
             "currency": currency,
         }
@@ -583,13 +755,29 @@ class Upbit:
         return self._request_get(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def get_withdraw_chance(self, currency: str, **kwargs) -> Response:
-        """
-        출금 가능 정보 조회
-        https://docs.upbit.com/reference/%EC%B6%9C%EA%B8%88-%EA%B0%80%EB%8A%A5-%EC%A0%95%EB%B3%B4
+    def get_withdraw_chance(self,
+                            currency: str,
+                            **kwargs) -> Response:
+        """출금 가능 정보 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%B6%9C%EA%B8%88-%EA%B0%80%EB%8A%A5-%EC%A0%95%EB%B3%B4>`_
+
         :param currency: Currency 코드
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_withdraw_chance('BTC')
+            print(res.json())
+
             {
                 "member_level": {
                     "security_level": 3,
@@ -640,19 +828,37 @@ class Upbit:
         return self._request_get(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def create_withdraw_coin(self, currency: str, amount: float, address: str,
-                             secondary_address: str = None, transaction_type: str = 'default',
+    def create_withdraw_coin(self,
+                             currency: str,
+                             amount: str,
+                             address: str,
+                             secondary_address: Optional[str] = None,
+                             transaction_type: TransactionType = 'default',
                              **kwargs) -> Response:
-        """
-        코인 출금하기
-        https://docs.upbit.com/reference/%EC%BD%94%EC%9D%B8-%EC%B6%9C%EA%B8%88%ED%95%98%EA%B8%B0
+        """코인 출금하기
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%BD%94%EC%9D%B8-%EC%B6%9C%EA%B8%88%ED%95%98%EA%B8%B0>`_
+
         :param currency: Currency 코드
         :param amount: 출금 수량
         :param address: 출금 가능 주소에 등록된 출금 주소
         :param secondary_address: 2차 출금 주소 (필요한 코인에 한해서)
-        :param transaction_type: 출금 유형 - default : 일반출금, internal : 바로출금
-        :return:
-            data example:
+        :param transaction_type: 출금 유형. default: 일반출금, internal: 바로출금
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.create_withdraw_coin('BTC', '0.01', '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
+            print(res.json())
+
             {
                 "type": "withdraw",
                 "uuid": "9f432943-54e0-40b7-825f-b6fec8b42b79",
@@ -680,14 +886,31 @@ class Upbit:
         return self._request_post(url, headers=headers, json=params, **kwargs)
 
     @_auth_guard
-    def create_withdraw_krw(self, amount: float, two_factor_type: str = 'kakao_pay', **kwargs) -> Response:
-        """
-        원화 출금하기
-        https://docs.upbit.com/reference/%EC%9B%90%ED%99%94-%EC%B6%9C%EA%B8%88%ED%95%98%EA%B8%B0
-        :param amount: 출금 수량
-        :param two_factor_type: 2차 인증 수단 - kakao_pay : 카카오페이 인증(default), naver : 네이버 인증
-        :return:
-            data example:
+    def create_withdraw_krw(self,
+                            amount: str,
+                            two_factor_type: TwoFactorType = 'kakao_pay',
+                            **kwargs) -> Response:
+        """원화 출금하기
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%9B%90%ED%99%94-%EC%B6%9C%EA%B8%88%ED%95%98%EA%B8%B0>`_
+
+        :param amount: 출금액
+        :param two_factor_type: 2차 인증 수단
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.create_withdraw_krw('10000')
+            print(res.json())
+
             {
                 "type": "withdraw",
                 "uuid": "9f432943-54e0-40b7-825f-b6fec8b42b79",
@@ -715,20 +938,41 @@ class Upbit:
     # --------------------------------------------------------------------------
 
     @_auth_guard
-    def get_deposits(self, currency: str = None, state: str = None, uuids: [str] = None, txids: [str] = None,
-                     page: int = 1, limit: int = 100, order_by: str = 'desc', **kwargs) -> Response:
-        """
-        입금 리스트 조회
-        https://docs.upbit.com/reference/%EC%9E%85%EA%B8%88-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C
+    def get_deposits(self,
+                     currency: Optional[str] = None,
+                     state: Optional[TransactionStatus] = None,
+                     uuids: Optional[list[str]] = None,
+                     txids: Optional[list[str]] = None,
+                     page: int = 1,
+                     limit: int = 100,
+                     order_by: OrderBy = 'desc',
+                     **kwargs) -> Response:
+        """입금 리스트 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%9E%85%EA%B8%88-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C>`_
+
         :param currency: Currency 코드
-        :param state: 출금 상태 WAITING, PROCESSING, DONE, FAILED, CANCELLED, REJECTED
-        :param uuids: 출금 UUID의 목록
-        :param txids: 출금 TXID의 목록
-        :param page: 페이지 수, default: 1
+        :param state: 출금 상태
+        :param uuids: 출금 UUID 리스트
+        :param txids: 출금 TXID 리스트
+        :param page: 페이지 수
         :param limit: 개수 제한 (default: 100, max: 100)
-        :param order_by: 정렬 방식 asc, desc(default)
-        :return:
-            data example:
+        :param order_by: 정렬 방식
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_deposits(currency='KRW')
+            print(res.json())
+
             [{
                 "type": "deposit",
                 "uuid": "94332e99-3a87-4a35-ad98-28b0c969f830",
@@ -757,15 +1001,33 @@ class Upbit:
         return self._request_get(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def get_deposit(self, data_uuid: str = None, txid: str = None, currency: str = None, **kwargs) -> Response:
-        """
-        개별 입금 조회
-        https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%9E%85%EA%B8%88-%EC%A1%B0%ED%9A%8C
-        :param data_uuid: 출금 UUID
+    def get_deposit(self,
+                    uuid: Optional[str] = None,
+                    txid: Optional[str] = None,
+                    currency: Optional[str] = None,
+                    **kwargs) -> Response:
+        """개별 입금 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%9E%85%EA%B8%88-%EC%A1%B0%ED%9A%8C>`_
+
+        :param uuid: 출금 UUID
         :param txid: 출금 TXID
         :param currency: Currency 코드
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_deposit('94332e99-3a87-4a35-ad98-28b0c969f830')
+            print(res.json())
+
             {
                 "type": "deposit",
                 "uuid": "94332e99-3a87-4a35-ad98-28b0c969f830",
@@ -781,7 +1043,7 @@ class Upbit:
         """
         url = self._endpoint + "/deposit"
         params = {
-            "uuid": data_uuid,
+            "uuid": uuid,
             "txid": txid,
             "currency": currency,
         }
@@ -790,14 +1052,31 @@ class Upbit:
         return self._request_get(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def create_deposit_krw(self, amount: float, two_factor_type: str = 'kakao_pay', **kwargs) -> Response:
-        """
-        원화 입금하기
-        https://docs.upbit.com/reference/%EC%9B%90%ED%99%94-%EC%9E%85%EA%B8%88%ED%95%98%EA%B8%B0
-        :param amount: 출금 수량
-        :param two_factor_type: 2차 인증 수단 - kakao_pay : 카카오페이 인증(default), naver : 네이버 인증
-        :return:
-            data example:
+    def create_deposit_krw(self,
+                           amount: str,
+                           two_factor_type: TwoFactorType = 'kakao_pay',
+                           **kwargs) -> Response:
+        """원화 입금하기
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%9B%90%ED%99%94-%EC%9E%85%EA%B8%88%ED%95%98%EA%B8%B0>`_
+
+        :param amount: 입금액
+        :param two_factor_type: 2차 인증 수단
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.create_deposit_krw('10000')
+            print(res.json())
+
             {
                 "type": "deposit",
                 "uuid": "9f432943-54e0-40b7-825f-b6fec8b42b79",
@@ -821,12 +1100,27 @@ class Upbit:
         return self._request_post(url, headers=headers, json=params, **kwargs)
 
     @_auth_guard
-    def get_coin_addresses(self, **kwargs) -> Response:
-        """
-        전체 입금 주소 조회
-        https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%A1%B0%ED%9A%8C
-        :return:
-            data example:
+    def get_coin_addresses(self,
+                           **kwargs) -> Response:
+        """전체 입금 주소 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%A1%B0%ED%9A%8C>`_
+
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_coin_addresses()
+            print(res.json())
+
             [{
                 "currency": "BTC",
                 "deposit_address": "3EusRwybuZUhVDeHL7gh3HSLmbhLcy7NqD",
@@ -839,13 +1133,29 @@ class Upbit:
         return self._request_get(url, headers=headers, **kwargs)
 
     @_auth_guard
-    def get_coin_address(self, currency: str = None, **kwargs) -> Response:
-        """
-        개별 입금 주소 조회
-        https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%A1%B0%ED%9A%8C
+    def get_coin_address(self,
+                         currency: str,
+                         **kwargs) -> Response:
+        """개별 입금 주소 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%A1%B0%ED%9A%8C>`_
+
         :param currency: Currency 코드
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_coin_address('BTC')
+            print(res.json())
+
             {
                 "currency": "BTC",
                 "deposit_address": "3EusRwybuZUhVDeHL7gh3HSLmbhLcy7NqD",
@@ -861,13 +1171,29 @@ class Upbit:
         return self._request_get(url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
-    def create_coin_address(self, currency: str, **kwargs) -> Response:
-        """
-        입금 주소 생성하기
-        https://docs.upbit.com/reference/%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%83%9D%EC%84%B1-%EC%9A%94%EC%B2%AD
+    def create_coin_address(self,
+                            currency: str,
+                            **kwargs) -> Response:
+        """입금 주소 생성하기
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%83%9D%EC%84%B1-%EC%9A%94%EC%B2%AD>`_
+
         :param currency: Currency 코드
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.create_coin_address('BTC')
+            print(res.json())
+
             {
               "success": true,
               "message": "BTC 입금주소를 생성중입니다."
@@ -886,12 +1212,27 @@ class Upbit:
     # --------------------------------------------------------------------------
 
     @_auth_guard
-    def get_wallet_status(self, **kwargs) -> Response:
-        """
-        입출금 현황 조회 (전체)
-        https://docs.upbit.com/reference/%EC%9E%85%EC%B6%9C%EA%B8%88-%ED%98%84%ED%99%A9
-        :return:
-            data example:
+    def get_wallet_status(self,
+                          **kwargs) -> Response:
+        """입출금 현황 조회 (전체)
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%9E%85%EC%B6%9C%EA%B8%88-%ED%98%84%ED%99%A9>`_
+
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_wallet_status()
+            print(res.json())
+
             [{
                 'currency': 'BTC',
                 'wallet_state': 'working',
@@ -907,13 +1248,31 @@ class Upbit:
         return self._request_get(url, headers=headers, **kwargs)
 
     @_auth_guard
-    def get_api_keys(self, **kwargs) -> Response:
-        """
-        API 키 리스트 조회
-        https://docs.upbit.com/reference/open-api-%ED%82%A4-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C
-        :return:
-            data example:
-            [{'access_key': 'xxxxxxxxxxxxxxxxxxxxxxxx', 'expire_at': '2024-02-13T13:57:59+09:00'}, ...]
+    def get_api_keys(self,
+                     **kwargs) -> Response:
+        """API 키 리스트 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/open-api-%ED%82%A4-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C>`_
+
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        example::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_api_keys()
+            print(res.json())
+
+            [{
+                'access_key': 'xxxxxxxxxxxxxxxxxxxxxxxx',
+                'expire_at': '2021-03-09T12:39:39+00:00'
+             }, ...]
         """
         url = self._endpoint + "/api_keys"
         headers = self._get_request_headers()
@@ -924,13 +1283,25 @@ class Upbit:
     # Quotation API > 시세 종목 조회
     # --------------------------------------------------------------------------
 
-    def get_markets(self, is_detail: bool = None, **kwargs) -> Response:
-        """
-        거래 가능한 마켓 목록 조회
-        https://docs.upbit.com/reference/%EB%A7%88%EC%BC%93-%EC%BD%94%EB%93%9C-%EC%A1%B0%ED%9A%8C
-        :param is_detail: 유의 종목(market_warning) 정보 포함 여부
-        :return:
-            data example:
+    def get_markets(self,
+                    is_detail: bool = False,
+                    **kwargs) -> Response:
+        """거래 가능한 마켓 목록 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EB%A7%88%EC%BC%93-%EC%BD%94%EB%93%9C-%EC%A1%B0%ED%9A%8C>`_
+
+        :param is_detail: 유의종목 필드과 같은 상세 정보 노출 여부
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :return: API 서버 응답
+
+        example::
+
+            upbit = Upbit()
+            res = upbit.get_markets(True)
+            print(res.json())
+
             [{
                 'market_warning': 'NONE',
                 'market': 'KRW-BTC',
@@ -949,17 +1320,31 @@ class Upbit:
     # Quotation API > 시세 캔들 조회
     # --------------------------------------------------------------------------
 
-    def get_candles_minute(self, unit: int = 1, market: str = "KRW-BTC",
-                           to: str = None, count: int = None, **kwargs) -> Response:
-        """
-        분(Minute) 캔들 조회
-        https://docs.upbit.com/reference/%EB%B6%84minute-%EC%BA%94%EB%93%A4-1
-        :param unit: 분 단위. 가능한 값 : 1, 3, 5, 15, 10, 30, 60, 240
+    def get_candles_minute(self,
+                           unit: MinuteUnit,
+                           market: str,
+                           to: Optional[str] = None,
+                           count: Optional[int] = None,
+                           **kwargs) -> Response:
+        """분(Minute) 캔들 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EB%B6%84minute-%EC%BA%94%EB%93%A4-1>`_
+
+        :param unit: 분 단위.
         :param market: 마켓 코드 (ex. KRW-BTC)
         :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
-        :param count: 캔들 개수(최대 200개까지 요청 가능) - 200개 초과로 요청해도 200개만 응답함
-        :return:
-            data example:
+        :param count: 캔들 개수. 최대 200
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :return: API 서버 응답
+
+        example::
+
+            upbit = Upbit()
+            res = upbit.get_candles_minute(1, 'KRW-BTC')
+            print(res.json())
+
             [{
                 'market': 'KRW-BTC',
                 'candle_date_time_utc': '2023-02-14T09:43:00',
@@ -983,17 +1368,31 @@ class Upbit:
 
         return self._request_get(url, params=params, **kwargs)
 
-    def get_candles_day(self, market: str = "KRW-BTC", to: str = None, count: int = None,
-                        converting_price_unit: str = None, **kwargs) -> Response:
-        """
-        일(Day) 캔들 조회
-        https://docs.upbit.com/reference/%EC%9D%BCday-%EC%BA%94%EB%93%A4-1
+    def get_candles_day(self,
+                        market: str,
+                        to: Optional[str] = None,
+                        count: Optional[int] = None,
+                        converting_price_unit: Optional[str] = None,
+                        **kwargs) -> Response:
+        """일(Day) 캔들 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%9D%BCday-%EC%BA%94%EB%93%A4-1>`_
+
         :param market: 마켓 코드 (ex. KRW-BTC)
         :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
-        :param count: 캔들 개수(최대 200개까지 요청 가능) - 200개 초과로 요청해도 200개만 응답함
-        :param converting_price_unit: 원화 마켓이 아닌 다른 마켓(ex. BTC, ETH)의 일봉 요청시, 종가 환산 화폐 단위 (예, KRW)
-        :return:
-            data example:
+        :param count: 캔들 개수. 최대 200
+        :param converting_price_unit: 원화 마켓이 아닌 다른 마켓(ex. BTC, USDT)의 일봉 요청시, 종가 환산 화폐 단위 (예, KRW)
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :return: API 서버 응답
+
+        example::
+
+            upbit = Upbit()
+            res = upbit.get_candles_day('USDT-BTC', converting_price_unit='KRW')
+            print(res.json())
+
             [{
                 'market': 'USDT-BTC',
                 'candle_date_time_utc': '2023-02-14T00:00:00',
@@ -1021,15 +1420,29 @@ class Upbit:
 
         return self._request_get(url, params=params, **kwargs)
 
-    def get_candles_week(self, market: str = "KRW-BTC", to: str = None, count: int = None, **kwargs) -> Response:
-        """
-        주(Week) 캔들 조회
-        https://docs.upbit.com/reference/%EC%A3%BCweek-%EC%BA%94%EB%93%A4-1
+    def get_candles_week(self,
+                         market: str,
+                         to: Optional[str] = None,
+                         count: Optional[int] = None,
+                         **kwargs) -> Response:
+        """주(Week) 캔들 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A3%BCweek-%EC%BA%94%EB%93%A4-1>`_
+
         :param market: 마켓 코드 (ex. KRW-BTC)
         :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
-        :param count: 캔들 개수(최대 200개까지 요청 가능) - 200개 초과로 요청해도 200개만 응답함
-        :return:
-            data example:
+        :param count: 캔들 개수. 최대 200
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :return: API 서버 응답
+
+        example::
+
+            upbit = Upbit()
+            res = upbit.get_candles_week('KRW-BTC')
+            print(res.json())
+
             [{
                 'market': 'KRW-BTC',
                 'candle_date_time_utc': '2023-02-14T09:43:00',
@@ -1053,15 +1466,29 @@ class Upbit:
 
         return self._request_get(url, params=params, **kwargs)
 
-    def get_candles_month(self, market: str = "KRW-BTC", to: str = None, count: int = None, **kwargs) -> Response:
-        """
-        월(Month) 캔들 조회
-        https://docs.upbit.com/reference/%EC%9B%94month-%EC%BA%94%EB%93%A4-1
+    def get_candles_month(self,
+                          market: str,
+                          to: Optional[str] = None,
+                          count: Optional[int] = None,
+                          **kwargs) -> Response:
+        """월(Month) 캔들 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%9B%94month-%EC%BA%94%EB%93%A4-1>`_
+
         :param market: 마켓 코드 (ex. KRW-BTC)
         :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
-        :param count: 캔들 개수(최대 200개까지 요청 가능) - 200개 초과로 요청해도 200개만 응답함
-        :return:
-            data example:
+        :param count: 캔들 개수. 최대 200
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :return: API 서버 응답
+
+        example::
+
+            upbit = Upbit()
+            res = upbit.get_candles_month('KRW-BTC')
+            print(res.json())
+
             [{
                 'market': 'KRW-BTC',
                 'candle_date_time_utc': '2023-02-14T09:43:00',
@@ -1089,18 +1516,33 @@ class Upbit:
     # Quotation API > 시세 체결 조회
     # --------------------------------------------------------------------------
 
-    def get_trades_ticks(self, market: str = "KRW-BTC", to: str = None, count: int = None,
-                         cursor: str = None, days_ago: int = None, **kwargs) -> Response:
-        """
-        최근 체결 내역 조회
-        https://docs.upbit.com/reference/%EC%B5%9C%EA%B7%BC-%EC%B2%B4%EA%B2%B0-%EB%82%B4%EC%97%AD
+    def get_trades_ticks(self,
+                         market: str,
+                         to: Optional[str] = None,
+                         count: Optional[int] = None,
+                         cursor: Optional[str] = None,
+                         days_ago: Optional[Literal[1, 2, 3, 4, 5, 6, 7]] = None,
+                         **kwargs) -> Response:
+        """최근 체결 내역 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%B5%9C%EA%B7%BC-%EC%B2%B4%EA%B2%B0-%EB%82%B4%EC%97%AD>`_
+
         :param market: 마켓 코드 (ex. KRW-BTC)
         :param to: 마지막 체결 시각. 형식 : [HHmmss 또는 HH:mm:ss]. 비워서 요청시 가장 최근 데이터
         :param count: 체결 개수. 최대 500개
         :param cursor: 페이지네이션 커서 (sequentialId)
-        :param days_ago: 최근 체결 날짜 기준 7일 이내의 이전 데이터 조회 가능. 비워서 요청 시 가장 최근 체결 날짜 반환. (범위: 1 ~ 7))
-        :return:
-            data example:
+        :param days_ago: 최근 체결 날짜 기준 7일 이내의 이전 데이터 조회 가능. 비워서 요청 시 가장 최근 체결 날짜 반환. 범위: 1~7
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :return: API 서버 응답
+
+        example::
+
+            upbit = Upbit()
+            res = upbit.get_trades_ticks('KRW-BTC')
+            print(res.json())
+
             [{
                 'market': 'KRW-BTC',
                 'trade_date_utc': '2023-02-14',
@@ -1129,13 +1571,25 @@ class Upbit:
     # Quotation API > 시세 현재가 조회
     # --------------------------------------------------------------------------
 
-    def get_ticker(self, markets: [str] = None, **kwargs) -> Response:
-        """
-        현재가 정보 조회
-        https://docs.upbit.com/reference/ticker%ED%98%84%EC%9E%AC%EA%B0%80-%EC%A0%95%EB%B3%B4
+    def get_ticker(self,
+                   markets: list[str],
+                   **kwargs) -> Response:
+        """현재가 정보 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/ticker%ED%98%84%EC%9E%AC%EA%B0%80-%EC%A0%95%EB%B3%B4>`_
+
         :param markets: 마켓 코드 리스트 (ex. ["KRW-BTC"])
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :return: API 서버 응답
+
+        example::
+
+            upbit = Upbit()
+            res = upbit.get_ticker(['KRW-BTC'])
+            print(res.json())
+
             [{
                 'market': 'KRW-BTC',
                 'trade_date': '20230214',
@@ -1165,9 +1619,6 @@ class Upbit:
                 'timestamp': 1676379715138
             }, ...]
         """
-        if markets is None:
-            markets = ["KRW-BTC"]
-
         url = self._endpoint + "/ticker"
         params = {
             "markets": markets,
@@ -1179,13 +1630,25 @@ class Upbit:
     # Quotation API > 시세 호가 조회
     # --------------------------------------------------------------------------
 
-    def get_orderbook(self, markets: [str] = None, **kwargs) -> Response:
-        """
-        호가 정보 조회
-        https://docs.upbit.com/reference/%ED%98%B8%EA%B0%80-%EC%A0%95%EB%B3%B4-%EC%A1%B0%ED%9A%8C
+    def get_orderbook(self,
+                      markets: [str],
+                      **kwargs) -> Response:
+        """호가 정보 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%ED%98%B8%EA%B0%80-%EC%A0%95%EB%B3%B4-%EC%A1%B0%ED%9A%8C>`_
+
         :param markets: 마켓 코드 리스트 (ex. ["KRW-BTC"])
-        :return:
-            data example:
+        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+
+        :return: API 서버 응답
+
+        example::
+
+            upbit = Upbit()
+            res = upbit.get_orderbook(['KRW-BTC'])
+            print(res.json())
+
             [{
                 'market': 'KRW-BTC',
                 'timestamp': 1676380537532,
@@ -1209,9 +1672,6 @@ class Upbit:
                     {'ask_price': 28272000.0, 'bid_price': 28221000.0, 'ask_size': 1.81017689, 'bid_size': 0.11078135}
             }, ...]
         """
-        if markets is None:
-            markets = ["KRW-BTC"]
-
         url = self._endpoint + "/orderbook"
         params = {
             "markets": markets,
