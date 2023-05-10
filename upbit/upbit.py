@@ -192,20 +192,8 @@ class Upbit:
         return wrapper
 
     @_request_wrapper
-    def _request_get(self, url: str, **kwargs) -> Response:
-        return self._session.get(url, **kwargs)
-
-    @_request_wrapper
-    def _request_put(self, url: str, **kwargs) -> Response:
-        return self._session.put(url, **kwargs)
-
-    @_request_wrapper
-    def _request_post(self, url: str, **kwargs) -> Response:
-        return self._session.post(url, **kwargs)
-
-    @_request_wrapper
-    def _request_delete(self, url: str, **kwargs) -> Response:
-        return self._session.delete(url, **kwargs)
+    def _request(self, method: str, url: str, **kwargs) -> Response:
+        return self._session.request(method, url, **kwargs)
 
     def _process_remaining_req(self, remaining_req: str) -> Optional[RemainingReq]:
         """Remaining-Req 응답 헤더를 캐시하고 RemainingReq 인스턴스로 변환하여 반환한다.
@@ -318,7 +306,7 @@ class Upbit:
         url = self._endpoint + "/accounts"
         headers = self._get_request_headers()
 
-        return self._request_get(url, headers=headers, **kwargs)
+        return self._request('get', url, headers=headers, **kwargs)
 
     # --------------------------------------------------------------------------
     # Exchange API > 주문
@@ -381,7 +369,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_get(url, headers=headers, params=params, **kwargs)
+        return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def get_order(self,
@@ -443,7 +431,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_get(url, headers=headers, params=params, **kwargs)
+        return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def get_orders(self,
@@ -513,7 +501,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_get(url, headers=headers, params=params, **kwargs)
+        return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def delete_order(self,
@@ -568,7 +556,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_delete(url, headers=headers, params=params, **kwargs)
+        return self._request('delete', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def create_order(self,
@@ -634,7 +622,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_post(url, headers=headers, params=params, **kwargs)
+        return self._request('post', url, headers=headers, params=params, **kwargs)
 
     # --------------------------------------------------------------------------
     # Exchange API > 출금
@@ -701,7 +689,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_get(url, headers=headers, params=params, **kwargs)
+        return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def get_withdraw(self,
@@ -752,7 +740,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_get(url, headers=headers, params=params, **kwargs)
+        return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def get_withdraw_chance(self,
@@ -825,7 +813,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_get(url, headers=headers, params=params, **kwargs)
+        return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def create_withdraw_coin(self,
@@ -883,7 +871,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_post(url, headers=headers, json=params, **kwargs)
+        return self._request('post', url, headers=headers, json=params, **kwargs)
 
     @_auth_guard
     def create_withdraw_krw(self,
@@ -931,7 +919,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_post(url, headers=headers, json=params, **kwargs)
+        return self._request('post', url, headers=headers, json=params, **kwargs)
 
     # --------------------------------------------------------------------------
     # Exchange API > 입금
@@ -998,7 +986,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_get(url, headers=headers, params=params, **kwargs)
+        return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def get_deposit(self,
@@ -1049,7 +1037,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_get(url, headers=headers, params=params, **kwargs)
+        return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def create_deposit_krw(self,
@@ -1097,7 +1085,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_post(url, headers=headers, json=params, **kwargs)
+        return self._request('post', url, headers=headers, json=params, **kwargs)
 
     @_auth_guard
     def get_coin_addresses(self,
@@ -1130,7 +1118,7 @@ class Upbit:
         url = self._endpoint + "/deposits/coin_addresses"
         headers = self._get_request_headers()
 
-        return self._request_get(url, headers=headers, **kwargs)
+        return self._request('get', url, headers=headers, **kwargs)
 
     @_auth_guard
     def get_coin_address(self,
@@ -1168,7 +1156,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_get(url, headers=headers, params=params, **kwargs)
+        return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
     def create_coin_address(self,
@@ -1205,7 +1193,7 @@ class Upbit:
         }
         headers = self._get_request_headers(params)
 
-        return self._request_post(url, headers=headers, json=params, **kwargs)
+        return self._request('post', url, headers=headers, json=params, **kwargs)
 
     # --------------------------------------------------------------------------
     # Exchange API > 서비스 정보
@@ -1245,7 +1233,7 @@ class Upbit:
         url = self._endpoint + "/status/wallet"
         headers = self._get_request_headers()
 
-        return self._request_get(url, headers=headers, **kwargs)
+        return self._request('get', url, headers=headers, **kwargs)
 
     @_auth_guard
     def get_api_keys(self,
@@ -1277,7 +1265,7 @@ class Upbit:
         url = self._endpoint + "/api_keys"
         headers = self._get_request_headers()
 
-        return self._request_get(url, headers=headers, **kwargs)
+        return self._request('get', url, headers=headers, **kwargs)
 
     # --------------------------------------------------------------------------
     # Quotation API > 시세 종목 조회
@@ -1314,7 +1302,7 @@ class Upbit:
             "isDetails": is_detail,
         }
 
-        return self._request_get(url, params=params, **kwargs)
+        return self._request('get', url, params=params, **kwargs)
 
     # --------------------------------------------------------------------------
     # Quotation API > 시세 캔들 조회
@@ -1366,7 +1354,7 @@ class Upbit:
             "count": count,
         }
 
-        return self._request_get(url, params=params, **kwargs)
+        return self._request('get', url, params=params, **kwargs)
 
     def get_candles_day(self,
                         market: str,
@@ -1418,7 +1406,7 @@ class Upbit:
             "convertingPriceUnit": converting_price_unit,
         }
 
-        return self._request_get(url, params=params, **kwargs)
+        return self._request('get', url, params=params, **kwargs)
 
     def get_candles_week(self,
                          market: str,
@@ -1464,7 +1452,7 @@ class Upbit:
             "count": count,
         }
 
-        return self._request_get(url, params=params, **kwargs)
+        return self._request('get', url, params=params, **kwargs)
 
     def get_candles_month(self,
                           market: str,
@@ -1510,7 +1498,7 @@ class Upbit:
             "count": count,
         }
 
-        return self._request_get(url, params=params, **kwargs)
+        return self._request('get', url, params=params, **kwargs)
 
     # --------------------------------------------------------------------------
     # Quotation API > 시세 체결 조회
@@ -1565,7 +1553,7 @@ class Upbit:
             "daysAgo": days_ago,
         }
 
-        return self._request_get(url, params=params, **kwargs)
+        return self._request('get', url, params=params, **kwargs)
 
     # --------------------------------------------------------------------------
     # Quotation API > 시세 현재가 조회
@@ -1624,7 +1612,7 @@ class Upbit:
             "markets": markets,
         }
 
-        return self._request_get(url, params=params, **kwargs)
+        return self._request('get', url, params=params, **kwargs)
 
     # --------------------------------------------------------------------------
     # Quotation API > 시세 호가 조회
@@ -1677,4 +1665,4 @@ class Upbit:
             "markets": markets,
         }
 
-        return self._request_get(url, params=params, **kwargs)
+        return self._request('get', url, params=params, **kwargs)
