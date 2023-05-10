@@ -6,7 +6,7 @@
 __all__ = [
 ]
 
-from .upbit import Upbit, RemainingReq, RequestGroup
+from .upbit import Upbit
 
 from .exceptions import (
     UpbitHTTPError,

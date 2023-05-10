@@ -3,7 +3,8 @@ import datetime
 import pytest
 import requests_mock
 
-from upbit import RemainingReq, InvalidRemainingReq, Upbit
+from upbit import InvalidRemainingReq, Upbit
+from upbit.models import RemainingReq
 
 
 class TestRemainingReq:

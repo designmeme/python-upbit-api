@@ -14,7 +14,7 @@ import requests
 from requests import Response
 from requests.adapters import HTTPAdapter
 
-from upbit.exceptions import (
+from .exceptions import (
     _ERROR_EXCEPTION_DICT,
     TooManyRequests,
     UpbitServerError,
@@ -23,63 +23,21 @@ from upbit.exceptions import (
     InvalidRemainingReq,
 )
 
-OrderBy = Literal['asc', 'desc']
-OrderState = Literal['wait', 'watch', 'done', 'cancel']
-OrderSide = Literal['bid', 'ask']
-OrderType = Literal['limit', 'price', 'market']
-TransactionStatus = Literal['WAITING', 'PROCESSING', 'DONE', 'FAILED', 'CANCELLED', 'REJECTED']
-TwoFactorType = Literal['kakao_pay', 'naver']
-TransactionType = Literal['default', 'internal']
-WalletState = Literal['working', 'withdraw_only', 'deposit_only', 'paused', 'unsupported']
-BlockState = Literal['normal', 'delayed', 'inactive']
-MarketWarningType = Literal['NONE', 'CAUTION']
-MinuteUnit = Literal[1, 3, 5, 15, 10, 30, 60, 240]
-
-# 잔여 요청 그룹
-RequestGroup = Literal[
-    # Exchange API
-    'default',  # 주문요청 외
-    'order',
-    # Quotation API
-    'market', 'candles', 'ticker', 'crix-trades', 'orderbook',
-]
-
-
-class RemainingReq:
-    """
-    잔여 요청수 클래스
-    Upbit API Doc: https://docs.upbit.com/docs/user-request-guide
-
-    Args:
-        group: RequestGroup 잔여 요청 그룹명
-        minute: 그룹별 분당 남은 요청수.
-        second: 그룹별 초당 남은 요청수.
-        updated: 요청수 응답을 저장한 일시.
-    """
-
-    def __init__(self, remaining_req: str):
-        """
-
-        :param remaining_req:
-        """
-        self._remaining_req = remaining_req
-
-        pattern = re.compile(r"group=([a-z\-]+); min=([0-9]+); sec=([0-9]+)")
-        matched = pattern.search(remaining_req)
-
-        try:
-            self.group: RequestGroup = matched.group(1)
-            self.minute: int = int(matched.group(2))
-            self.second: int = int(matched.group(3))
-        except AttributeError:
-            raise InvalidRemainingReq(f'Invalid Remaining Req {remaining_req=!r}')
-        self.updated: datetime.datetime = datetime.datetime.now()
-
-    def __str__(self):
-        return f"RemainingReq group={self.group!r}; min={self.minute!r}; sec={self.second!r}; updated={self.updated!r}"
-
-    def __repr__(self):
-        return f"RemainingReq(${self._remaining_req!r})"
+from .models import (
+    OrderBy,
+    OrderState,
+    OrderSide,
+    OrderType,
+    TransactionStatus,
+    TwoFactorType,
+    TransactionType,
+    WalletState,
+    BlockState,
+    MarketWarningType,
+    MinuteUnit,
+    RequestGroup,
+    RemainingReq,
+)
 
 
 class Upbit:
