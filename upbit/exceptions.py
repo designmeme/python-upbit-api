@@ -99,16 +99,13 @@ class OutOfScope(UpbitClientError):
 
 
 class ApiKeyError(Exception):
-    """access_key 혹은 secret_key 가 필요한 경우 에러 발생"""
+    """access_key 혹은 secret_key 누락 에러 발생"""
 
 
 class InvalidRemainingReq(Exception):
-    """Remaining-Req 헤더값이 규격에 맞지 않는 경우 에러 발생"""
+    """규격에 맞지 않는 Remaining-Req 헤더값 에러 발생"""
 
 
-"""
-Upbit API 오류 코드와 1:1로 맞춘 UpbitHTTPError 예외 클래스를 담은 딕셔너리
-"""
 _ERROR_EXCEPTION_DICT = {
     "create_ask_error": CreateAskError,
     "create_bid_error": CreateBidError,
@@ -126,3 +123,4 @@ _ERROR_EXCEPTION_DICT = {
     "no_authorization_i_p": NoAuthorizationIP,
     "out_of_scope": OutOfScope,
 }
+"""Upbit API 오류 코드와 1:1로 맞춘 UpbitHTTPError 예외 클래스를 담은 딕셔너리"""

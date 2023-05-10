@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import datetime
 import functools
 import hashlib
 import logging
-import re
 import uuid as _uuid
 from typing import Any, Optional, Literal, Dict, Callable, Tuple
 from urllib.parse import urlencode, unquote
@@ -22,7 +20,6 @@ from .exceptions import (
     ApiKeyError,
     InvalidRemainingReq,
 )
-
 from .models import (
     OrderBy,
     OrderState,
@@ -31,9 +28,6 @@ from .models import (
     TransactionStatus,
     TwoFactorType,
     TransactionType,
-    WalletState,
-    BlockState,
-    MarketWarningType,
     MinuteUnit,
     RequestGroup,
     RemainingReq,
@@ -44,30 +38,19 @@ class Upbit:
     def __init__(self,
                  access_key: str | None = None,
                  secret_key: str | None = None,
-                 *,
                  http_adapter: HTTPAdapter | None = None,
-                 timeout: float | Tuple[float, float] | None = (6, 30),
+                 timeout: float | Tuple[float, float] | Tuple[float, None] | None = None,
                  ):
         """
-
         :param access_key: 업비트 API Access Key
-            Quotation API만 사용한다면 설정하지 않아도 됩니다.
-            Exchange API를 사용하려면 필수로 설정해야 합니다.
-            설정하지 않고 관련 메소드를 요청하면 ApiKeyError 예외가 발생합니다.
-
         :param secret_key: 업비트 API Secret Key
-            Quotation API만 사용한다면 설정하지 않아도 됩니다.
-            Exchange API를 사용하려면 필수로 설정해야 합니다.
-            설정하지 않고 관련 메소드를 요청하면 ApiKeyError 예외가 발생합니다.
+        :param http_adapter: 업비트 API 호출용 `requests.Session` 에 설정 할 HTTPAdapter
+        :param timeout: 업비트 API 호출시 `requests.Session.request` 의 기본 timeout 설정값 (connect, read)
 
-        :param http_adapter: 업비트 API request session 에 설정 할 HTTPAdapter
-
-        :param timeout: 업비트 API request 의 기본 timeout 설정값. (connect, read)
-            예) connect, read timeout 함께 설정시 timeout=5
-            예) connect, read timeout 따로 설정시 timeout=(6, 12)
-            예) None 인 경우 무한 대기
-            업비트 서버 점검시 연결 되지 않으며 커넥션이 무한 대기 상태가 됩니다. 이를 방지를 위해 적절한 timout 값을 설정하길 권장합니다.
-            참고: https://requests.readthedocs.io/en/latest/user/advanced/#timeouts
+        .. note::
+            - Quotation API만 사용한다면 access_key, secret_key를 설정하지 않아도 됩니다.
+            - Exchange API를 사용하려면 access_key, secret_key를 필수로 설정해야 합니다.
+            - 업비트 서버 점검시 연결 되지 않으며 커넥션이 무한 대기 상태가 됩니다. 이를 방지를 위해 적절한 timout 값을 설정하길 권장합니다. `Requests Timeouts 참고 <https://requests.readthedocs.io/en/latest/user/advanced/#timeouts>`_
         """
 
         self._endpoint = "https://api.upbit.com/v1"
@@ -96,7 +79,25 @@ class Upbit:
         1) 잔여 요청수 처리
         2) HTTPError를 UpbitError로 변환
 
-        :raises TooManyRequests: 응답 코드가 423인 경우 발생
+        :raises upbit.exceptions.TooManyRequests: 상태 코드가 423인 경우 발생
+        :raises upbit.exceptions.CreateAskError: 상태 코드가 400이고 인 오류 코드가 'create_ask_error' 인 경우 발생
+        :raises upbit.exceptions.CreateBidError: 상태 코드가 400이고 인 오류 코드가 'create_bid_error' 인 경우 발생
+        :raises upbit.exceptions.InsufficientFundsAsk: 상태 코드가 400이고 인 오류 코드가 'insufficient_funds_ask' 인 경우 발생
+        :raises upbit.exceptions.InsufficientFundsBid: 상태 코드가 400이고 인 오류 코드가 'insufficient_funds_bid' 인 경우 발생
+        :raises upbit.exceptions.UnderMinTotalAsk: 상태 코드가 400이고 인 오류 코드가 'under_min_total_ask' 인 경우 발생
+        :raises upbit.exceptions.UnderMinTotalAsk: 상태 코드가 400이고 인 오류 코드가 'under_min_total_ask' 인 경우 발생
+        :raises upbit.exceptions.UnderMinTotalBid: 상태 코드가 400이고 인 오류 코드가 'under_min_total_bid' 인 경우 발생
+        :raises upbit.exceptions.WithdrawAddressNotRegistered: 상태 코드가 400이고 인 오류 코드가 'withdraw_address_not_registerd' 인 경우 발생
+        :raises upbit.exceptions.InvalidParameterError: 상태 코드가 400이고 인 오류 코드가 'invalid_parameter' 인 경우 발생
+        :raises upbit.exceptions.ValidationError: 상태 코드가 400이고 인 오류 코드가 'validation_error' 인 경우 발생
+        :raises upbit.exceptions.InvalidQueryPayload: 상태 코드가 401이고 인 오류 코드가 'invalid_query_payload' 인 경우 발생
+        :raises upbit.exceptions.JwtVerification: 상태 코드가 401이고 인 오류 코드가 'jwt_verification' 인 경우 발생
+        :raises upbit.exceptions.ExpiredAccessKey: 상태 코드가 401이고 인 오류 코드가 'expired_access_key' 인 경우 발생
+        :raises upbit.exceptions.NonceUsed: 상태 코드가 401이고 인 오류 코드가 'nonce_used' 인 경우 발생
+        :raises upbit.exceptions.NoAuthorizationIP: 상태 코드가 401이고 인 오류 코드가 'no_authorization_i_p' 인 경우 발생
+        :raises upbit.exceptions.OutOfScope: 상태 코드가 401이고 인 오류 코드가 'out_of_scope' 인 경우 발생
+        :raises upbit.exceptions.UpbitClientError: 이 외에 상태 코드가 400 이상, 500 미만인 경우 발생
+        :raises upbit.exceptions.UpbitServerError: 상태 코드가 500 이상, 600 미만인 경우 발생
         """
 
         @functools.wraps(func)
@@ -115,11 +116,14 @@ class Upbit:
                 return response
             except requests.HTTPError as e:
                 status_code = e.response.status_code
+                reason = e.response.reason
+                url = e.response.url
+                error_msg = f"{status_code} Client Error: {reason} for url: {url}"
 
                 # TooManyRequests 에러 처리
                 if status_code == 423:
                     # 이 에러는 규격화된 Upbit 에러 JSON 바디를 갖지 않음.
-                    raise TooManyRequests(f"Upbit TooManyRequests Error {status_code} Remaining-Req={remaining_req}", e)
+                    raise TooManyRequests(error_msg, e)
 
                 # Upbit API 주요 에러 코드 목록에 명시된 에러 처리
                 elif status_code in [400, 401]:
@@ -130,22 +134,23 @@ class Upbit:
                         error_msg = error_body.get("message")
                         error_exception = _ERROR_EXCEPTION_DICT.get(error_code)
 
+                        reason = error_msg
                         if error_exception:
-                            raise error_exception(f"Upbit Client Error {status_code} {error_code=!r} {error_msg=!r}", e)
+                            raise error_exception(error_msg, e)
                         else:
                             # 명시되지 않은 에러가 발생한 경우
-                            raise UpbitClientError(f"Upbit Client Error {status_code} {error_code=!r} {error_msg=!r}", e)
+                            raise UpbitClientError(error_msg, e)
                     # body 내용이 json 형태가 아닌 경우
                     except requests.JSONDecodeError:
-                        raise UpbitClientError(f'Upbit Client Error {status_code} {e.response.reason}', e)
+                        raise UpbitClientError(error_msg, e)
 
                 # 기타 Upbit Client error 처리
                 elif 400 <= status_code < 500:
-                    raise UpbitClientError(f'Upbit Client Error {status_code} {e.response.reason}', e)
+                    raise UpbitClientError(error_msg, e)
 
                 # Upbit Server error 처리
                 elif 500 <= status_code < 600:
-                    raise UpbitServerError(f'Upbit Server Error {status_code} {e.response.reason}', e)
+                    raise UpbitServerError(f"{status_code} Server Error: {reason} for url: {url}", e)
 
         return wrapper
 
@@ -175,14 +180,13 @@ class Upbit:
     def _auth_guard(func: Callable) -> Callable:
         """인증이 필요한 메서드 호출시 API 키가 셋팅되어 있는지 확인하는 가드
 
-        :except ApiKeyError: 인증이 필요한 메소드를 인증 정보 없이 호출시 발생
+        :raises upbit.exceptions.ApiKeyError: 인증이 필요한 메소드를 인증 정보 없이 호출시 발생
         """
 
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs) -> Any:
             if not self._access_key or not self._secret_key:
-                raise ApiKeyError(f'{func.__name__} 메서드는 API Key 가 필요해요. '
-                                  f'Upbit 인스턴스 생성시 access_key, secret_key 값을 인자로 넣어주세요.')
+                raise ApiKeyError(f'{func.__name__} 메서드를 호출하기 위해서는 인증 정보가 필요합니다.')
 
             return func(self, *args, **kwargs)
 
@@ -214,6 +218,13 @@ class Upbit:
         :param group: RequestGroup 잔여 요청 그룹
 
         :return: RemainingReq 잔여 요청 정보. 이전 응답 헤더에서 얻은 정보를 저장해 놓은 가장 최신 정보.
+
+        Usage::
+
+            upbit = Upbit()
+            res = upbit.get_candles_day('KRW-BTC')
+            rr = upbit.get_remaining_reqs('candles')
+
         """
         return self._remaining_reqs.get(group)
 
@@ -231,13 +242,13 @@ class Upbit:
         API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EA%B3%84%EC%A2%8C-%EC%A1%B0%ED%9A%8C>`_
 
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -280,13 +291,13 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8-%EA%B0%80%EB%8A%A5-%EC%A0%95%EB%B3%B4>`_
 
         :param market: 마켓 코드 (ex. KRW-BTC)
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -343,13 +354,13 @@ class Upbit:
 
         :param uuid: 주문 UUID
         :param identifier: 조회용 사용자 지정 값
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -415,13 +426,13 @@ class Upbit:
         :param page: 페이지 수
         :param limit: 요청 개수
         :param order_by: 정렬 방식
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -475,13 +486,13 @@ class Upbit:
 
         :param uuid: 주문 UUID
         :param identifier: 조회용 사용자 지정 값
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -536,13 +547,13 @@ class Upbit:
         :param volume: 주문량 (지정가, 시장가 매도 시 필수)
         :param price: 주문 가격 (지정가, 시장가 매수 시 필수)
         :param identifier: 조회용 사용자 지정 값
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -608,13 +619,13 @@ class Upbit:
         :param page: 페이지 수
         :param limit: 개수 제한 (default: 100, max: 100)
         :param order_by: 정렬 방식
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -663,13 +674,13 @@ class Upbit:
         :param uuid: 출금 UUID
         :param txid: 출금 TXID
         :param currency: Currency 코드
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -710,13 +721,13 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%B6%9C%EA%B8%88-%EA%B0%80%EB%8A%A5-%EC%A0%95%EB%B3%B4>`_
 
         :param currency: Currency 코드
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -791,13 +802,13 @@ class Upbit:
         :param address: 출금 가능 주소에 등록된 출금 주소
         :param secondary_address: 2차 출금 주소 (필요한 코인에 한해서)
         :param transaction_type: 출금 유형. default: 일반출금, internal: 바로출금
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -843,13 +854,13 @@ class Upbit:
 
         :param amount: 출금액
         :param two_factor_type: 2차 인증 수단
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -905,13 +916,13 @@ class Upbit:
         :param page: 페이지 수
         :param limit: 개수 제한 (default: 100, max: 100)
         :param order_by: 정렬 방식
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -960,13 +971,13 @@ class Upbit:
         :param uuid: 출금 UUID
         :param txid: 출금 TXID
         :param currency: Currency 코드
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -998,6 +1009,114 @@ class Upbit:
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
     @_auth_guard
+    def create_coin_address(self,
+                            currency: str,
+                            **kwargs) -> Response:
+        """입금 주소 생성 요청
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%83%9D%EC%84%B1-%EC%9A%94%EC%B2%AD>`_
+
+        :param currency: Currency 코드
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.create_coin_address('BTC')
+            print(res.json())
+
+            {
+              "success": true,
+              "message": "BTC 입금주소를 생성중입니다."
+            }
+        """
+        url = self._endpoint + "/deposits/generate_coin_address"
+        params = {
+            "currency": currency,
+        }
+        headers = self._get_request_headers(params)
+
+        return self._request('post', url, headers=headers, json=params, **kwargs)
+
+    @_auth_guard
+    def get_coin_addresses(self,
+                           **kwargs) -> Response:
+        """전체 입금 주소 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%A1%B0%ED%9A%8C>`_
+
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_coin_addresses()
+            print(res.json())
+
+            [{
+                "currency": "BTC",
+                "deposit_address": "3EusRwybuZUhVDeHL7gh3HSLmbhLcy7NqD",
+                "secondary_address": null
+            }, ...]
+        """
+        url = self._endpoint + "/deposits/coin_addresses"
+        headers = self._get_request_headers()
+
+        return self._request('get', url, headers=headers, **kwargs)
+
+    @_auth_guard
+    def get_coin_address(self,
+                         currency: str,
+                         **kwargs) -> Response:
+        """개별 입금 주소 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%A1%B0%ED%9A%8C>`_
+
+        :param currency: Currency 코드
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_coin_address('BTC')
+            print(res.json())
+
+            {
+                "currency": "BTC",
+                "deposit_address": "3EusRwybuZUhVDeHL7gh3HSLmbhLcy7NqD",
+                "secondary_address": null
+            }
+        """
+        url = self._endpoint + "/deposits/coin_address"
+        params = {
+            "currency": currency,
+        }
+        headers = self._get_request_headers(params)
+
+        return self._request('get', url, headers=headers, params=params, **kwargs)
+
+    @_auth_guard
     def create_deposit_krw(self,
                            amount: str,
                            two_factor_type: TwoFactorType = 'kakao_pay',
@@ -1009,13 +1128,13 @@ class Upbit:
 
         :param amount: 입금액
         :param two_factor_type: 2차 인증 수단
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -1045,114 +1164,6 @@ class Upbit:
 
         return self._request('post', url, headers=headers, json=params, **kwargs)
 
-    @_auth_guard
-    def get_coin_addresses(self,
-                           **kwargs) -> Response:
-        """전체 입금 주소 조회
-
-        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
-        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A0%84%EC%B2%B4-%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%A1%B0%ED%9A%8C>`_
-
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
-
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
-
-        :return: API 서버 응답
-
-        example::
-
-            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
-            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
-            upbit = Upbit(access_key, secret_key)
-            res = upbit.get_coin_addresses()
-            print(res.json())
-
-            [{
-                "currency": "BTC",
-                "deposit_address": "3EusRwybuZUhVDeHL7gh3HSLmbhLcy7NqD",
-                "secondary_address": null
-            }, ...]
-        """
-        url = self._endpoint + "/deposits/coin_addresses"
-        headers = self._get_request_headers()
-
-        return self._request('get', url, headers=headers, **kwargs)
-
-    @_auth_guard
-    def get_coin_address(self,
-                         currency: str,
-                         **kwargs) -> Response:
-        """개별 입금 주소 조회
-
-        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
-        `Upbit API Doc <https://docs.upbit.com/reference/%EA%B0%9C%EB%B3%84-%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%A1%B0%ED%9A%8C>`_
-
-        :param currency: Currency 코드
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
-
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
-
-        :return: API 서버 응답
-
-        example::
-
-            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
-            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
-            upbit = Upbit(access_key, secret_key)
-            res = upbit.get_coin_address('BTC')
-            print(res.json())
-
-            {
-                "currency": "BTC",
-                "deposit_address": "3EusRwybuZUhVDeHL7gh3HSLmbhLcy7NqD",
-                "secondary_address": null
-            }
-        """
-        url = self._endpoint + "/deposits/coin_address"
-        params = {
-            "currency": currency,
-        }
-        headers = self._get_request_headers(params)
-
-        return self._request('get', url, headers=headers, params=params, **kwargs)
-
-    @_auth_guard
-    def create_coin_address(self,
-                            currency: str,
-                            **kwargs) -> Response:
-        """입금 주소 생성하기
-
-        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
-        `Upbit API Doc <https://docs.upbit.com/reference/%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%83%9D%EC%84%B1-%EC%9A%94%EC%B2%AD>`_
-
-        :param currency: Currency 코드
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
-
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
-
-        :return: API 서버 응답
-
-        example::
-
-            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
-            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
-            upbit = Upbit(access_key, secret_key)
-            res = upbit.create_coin_address('BTC')
-            print(res.json())
-
-            {
-              "success": true,
-              "message": "BTC 입금주소를 생성중입니다."
-            }
-        """
-        url = self._endpoint + "/deposits/generate_coin_address"
-        params = {
-            "currency": currency,
-        }
-        headers = self._get_request_headers(params)
-
-        return self._request('post', url, headers=headers, json=params, **kwargs)
-
     # --------------------------------------------------------------------------
     # Exchange API > 서비스 정보
     # --------------------------------------------------------------------------
@@ -1160,18 +1171,18 @@ class Upbit:
     @_auth_guard
     def get_wallet_status(self,
                           **kwargs) -> Response:
-        """입출금 현황 조회 (전체)
+        """입출금 현황 조회
 
         API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%9E%85%EC%B6%9C%EA%B8%88-%ED%98%84%ED%99%A9>`_
 
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -1201,13 +1212,13 @@ class Upbit:
         API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
         `Upbit API Doc <https://docs.upbit.com/reference/open-api-%ED%82%A4-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C>`_
 
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
-        :except ApiKeyError: 인증 정보 없이 호출시 발생.
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
@@ -1238,11 +1249,11 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/%EB%A7%88%EC%BC%93-%EC%BD%94%EB%93%9C-%EC%A1%B0%ED%9A%8C>`_
 
         :param is_detail: 유의종목 필드과 같은 상세 정보 노출 여부
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             upbit = Upbit()
             res = upbit.get_markets(True)
@@ -1281,11 +1292,11 @@ class Upbit:
         :param market: 마켓 코드 (ex. KRW-BTC)
         :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
         :param count: 캔들 개수. 최대 200
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             upbit = Upbit()
             res = upbit.get_candles_minute(1, 'KRW-BTC')
@@ -1329,11 +1340,11 @@ class Upbit:
         :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
         :param count: 캔들 개수. 최대 200
         :param converting_price_unit: 원화 마켓이 아닌 다른 마켓(ex. BTC, USDT)의 일봉 요청시, 종가 환산 화폐 단위 (예, KRW)
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             upbit = Upbit()
             res = upbit.get_candles_day('USDT-BTC', converting_price_unit='KRW')
@@ -1379,11 +1390,11 @@ class Upbit:
         :param market: 마켓 코드 (ex. KRW-BTC)
         :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
         :param count: 캔들 개수. 최대 200
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             upbit = Upbit()
             res = upbit.get_candles_week('KRW-BTC')
@@ -1425,11 +1436,11 @@ class Upbit:
         :param market: 마켓 코드 (ex. KRW-BTC)
         :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
         :param count: 캔들 개수. 최대 200
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             upbit = Upbit()
             res = upbit.get_candles_month('KRW-BTC')
@@ -1479,11 +1490,11 @@ class Upbit:
         :param count: 체결 개수. 최대 500개
         :param cursor: 페이지네이션 커서 (sequentialId)
         :param days_ago: 최근 체결 날짜 기준 7일 이내의 이전 데이터 조회 가능. 비워서 요청 시 가장 최근 체결 날짜 반환. 범위: 1~7
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             upbit = Upbit()
             res = upbit.get_trades_ticks('KRW-BTC')
@@ -1526,11 +1537,11 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/ticker%ED%98%84%EC%9E%AC%EA%B0%80-%EC%A0%95%EB%B3%B4>`_
 
         :param markets: 마켓 코드 리스트 (ex. ["KRW-BTC"])
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             upbit = Upbit()
             res = upbit.get_ticker(['KRW-BTC'])
@@ -1585,11 +1596,11 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/%ED%98%B8%EA%B0%80-%EC%A0%95%EB%B3%B4-%EC%A1%B0%ED%9A%8C>`_
 
         :param markets: 마켓 코드 리스트 (ex. ["KRW-BTC"])
-        :param kwargs: requests 메소드 호출시 넘겨주는 키워드 파라미터
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :return: API 서버 응답
 
-        example::
+        Usage::
 
             upbit = Upbit()
             res = upbit.get_orderbook(['KRW-BTC'])
