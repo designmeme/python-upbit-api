@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.0.0](https://github.com/designmeme/python-upbit-api/compare/v1.0.0-alpha.2...v1.0.0) (2023-05-11)
+
+
+### Features
+
+* **exception:** UpbitError 클래스명을 UpbitHTTPError 로 더 명확히 변경 ([bf364e3](https://github.com/designmeme/python-upbit-api/commit/bf364e3b5c07228f8298c29a2b4e82562e73751e))
+* **upbit:** Upbit 생성 인자 http_adapter 추가 ([847309b](https://github.com/designmeme/python-upbit-api/commit/847309b5d186773643ba74d4d3ed745a5833c0aa)), closes [#5](https://github.com/designmeme/python-upbit-api/issues/5)
+* **upbit:** 업비트 문서에 명시되지 않은 에러가 발생한 경우 UpbitClientError 예외 발생 시키기 ([0fba156](https://github.com/designmeme/python-upbit-api/commit/0fba1568d6314c152e0e50619f0a046ce5bf7000))
+
+
+### Bug Fixes
+
+* RemainingReq 초기화시 InvalidRemainingReq 예외 발생시키지 않는 문제 해결 ([66de9a6](https://github.com/designmeme/python-upbit-api/commit/66de9a616eaf53e691c59737b1cfff95e2f7dafb))
+
+
+### Documentation
+
+* **exceptions:** 주석 작성 ([25ee937](https://github.com/designmeme/python-upbit-api/commit/25ee93718205b5d2a060897b6ca99cd038c77b94))
+* **readme:** README.md 작성 ([f9fcd59](https://github.com/designmeme/python-upbit-api/commit/f9fcd59d6143adc169d9c403249f82861088fa62))
+* 주석 보완 ([708b744](https://github.com/designmeme/python-upbit-api/commit/708b744712e30fa54684cab8b24190635f03af32))
+* 주석 수정 ([61e5917](https://github.com/designmeme/python-upbit-api/commit/61e59174f92c83781ce2708121be440c2254a801))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([21ba69b](https://github.com/designmeme/python-upbit-api/commit/21ba69bf5322da707e7564f41d8f6611e5e1f87f))
+
 ## [1.0.0-alpha.2](https://github.com/designmeme/python-upbit-api/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2023-05-01)
 
 
