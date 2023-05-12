@@ -86,3 +86,10 @@ class TestUpbit:
             with pytest.raises(ApiKeyError):
                 up = Upbit(access_key=access_key, secret_key=secret_key)
                 up.get_accounts()
+
+    def test_auth_header(self):
+        upbit = Upbit('xxxxx', 'xxxxx')
+        auth_headers = upbit._get_request_headers(None, {'test': 123})
+
+        assert auth_headers.get('Authorization') is not None
+        assert auth_headers.get('test') == 123
