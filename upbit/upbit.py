@@ -177,22 +177,19 @@ class Upbit:
             self._logger.warning(f"Upbit API 잔여 요청수 처리 에러. {remaining_req=!r} {e!r}")
             pass
 
-    def _auth_guard(func: Callable) -> Callable:
-        """인증이 필요한 메서드 호출시 API 키가 셋팅되어 있는지 확인하는 가드
+    def _get_request_headers(self, query: Dict = None, headers: Dict | None = None) -> Dict:
+        """인증 헤더를 만들어 반환한다.
 
-        :raises upbit.exceptions.ApiKeyError: 인증이 필요한 메소드를 인증 정보 없이 호출시 발생
+        :param query: 요청 바디
+        :param headers: 기존 요청 헤더
+        :return: 기존 요청 헤더에 인증 헤더를 추가해서 반환
+
+        :raises upbit.exceptions.ApiKeyError: 인증 키 정보가 없을 때 발생
         """
 
-        @functools.wraps(func)
-        def wrapper(self, *args, **kwargs) -> Any:
-            if not self._access_key or not self._secret_key:
-                raise ApiKeyError(f'{func.__name__} 메서드를 호출하기 위해서는 인증 정보가 필요합니다.')
+        if not self._access_key or not self._secret_key:
+            raise ApiKeyError(f'인증 정보가 필요합니다.')
 
-            return func(self, *args, **kwargs)
-
-        return wrapper
-
-    def _get_request_headers(self, query: Dict = None, headers: Dict | None = None) -> Dict:
         payload = {
             "access_key": self._access_key,
             "nonce": str(_uuid.uuid4())
@@ -235,7 +232,6 @@ class Upbit:
     # Exchange API > 자산
     # --------------------------------------------------------------------------
 
-    @_auth_guard
     def get_accounts(self,
                      **kwargs) -> Response:
         """전체 계좌 조회
@@ -284,7 +280,6 @@ class Upbit:
     # Exchange API > 주문
     # --------------------------------------------------------------------------
 
-    @_auth_guard
     def get_order_chance(self,
                          market: str,
                          **kwargs) -> Response:
@@ -343,7 +338,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def get_order(self,
                   uuid: Optional[str] = None,
                   identifier: Optional[str] = None,
@@ -405,7 +399,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def get_orders(self,
                    market: Optional[str] = None,
                    uuids: Optional[list[str]] = None,
@@ -475,7 +468,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def delete_order(self,
                      uuid: Optional[str] = None,
                      identifier: Optional[str] = None,
@@ -530,7 +522,6 @@ class Upbit:
 
         return self._request('delete', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def create_order(self,
                      market: str, 
                      side: OrderSide, 
@@ -600,7 +591,6 @@ class Upbit:
     # Exchange API > 출금
     # --------------------------------------------------------------------------
 
-    @_auth_guard
     def get_withdraws(self,
                       currency: Optional[str] = None,
                       state: Optional[TransactionStatus] = None,
@@ -663,7 +653,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def get_withdraw(self,
                      uuid: Optional[str] = None,
                      txid: Optional[str] = None,
@@ -714,7 +703,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def get_withdraw_chance(self,
                             currency: str,
                             **kwargs) -> Response:
@@ -787,7 +775,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def create_withdraw_coin(self,
                              currency: str,
                              amount: str,
@@ -845,7 +832,6 @@ class Upbit:
 
         return self._request('post', url, headers=headers, json=params, **kwargs)
 
-    @_auth_guard
     def create_withdraw_krw(self,
                             amount: str,
                             two_factor_type: TwoFactorType = 'kakao_pay',
@@ -897,7 +883,6 @@ class Upbit:
     # Exchange API > 입금
     # --------------------------------------------------------------------------
 
-    @_auth_guard
     def get_deposits(self,
                      currency: Optional[str] = None,
                      state: Optional[TransactionStatus] = None,
@@ -960,7 +945,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def get_deposit(self,
                     uuid: Optional[str] = None,
                     txid: Optional[str] = None,
@@ -1011,7 +995,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def create_coin_address(self,
                             currency: str,
                             **kwargs) -> Response:
@@ -1048,7 +1031,6 @@ class Upbit:
 
         return self._request('post', url, headers=headers, json=params, **kwargs)
 
-    @_auth_guard
     def get_coin_addresses(self,
                            **kwargs) -> Response:
         """전체 입금 주소 조회
@@ -1081,7 +1063,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, **kwargs)
 
-    @_auth_guard
     def get_coin_address(self,
                          currency: str,
                          **kwargs) -> Response:
@@ -1119,7 +1100,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
-    @_auth_guard
     def create_deposit_krw(self,
                            amount: str,
                            two_factor_type: TwoFactorType = 'kakao_pay',
@@ -1171,7 +1151,6 @@ class Upbit:
     # Exchange API > 서비스 정보
     # --------------------------------------------------------------------------
 
-    @_auth_guard
     def get_wallet_status(self,
                           **kwargs) -> Response:
         """입출금 현황 조회
@@ -1207,7 +1186,6 @@ class Upbit:
 
         return self._request('get', url, headers=headers, **kwargs)
 
-    @_auth_guard
     def get_api_keys(self,
                      **kwargs) -> Response:
         """API 키 리스트 조회
