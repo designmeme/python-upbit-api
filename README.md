@@ -112,7 +112,7 @@ upbit = Upbit()
 try:
     res = upbit.get_markets()
 except TooManyRequests as e:
-    status_code = e.response.status_code  # 423
+    status_code = e.response.status_code  # 429
     # ...예외 처리 코드
 except UpbitClientError as e:
     res = e.response
