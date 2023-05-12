@@ -79,7 +79,7 @@ class Upbit:
         1) 잔여 요청수 처리
         2) HTTPError를 UpbitError로 변환
 
-        :raises upbit.exceptions.TooManyRequests: 상태 코드가 423인 경우 발생
+        :raises upbit.exceptions.TooManyRequests: 상태 코드가 429인 경우 발생
         :raises upbit.exceptions.CreateAskError: 상태 코드가 400이고 인 오류 코드가 'create_ask_error' 인 경우 발생
         :raises upbit.exceptions.CreateBidError: 상태 코드가 400이고 인 오류 코드가 'create_bid_error' 인 경우 발생
         :raises upbit.exceptions.InsufficientFundsAsk: 상태 코드가 400이고 인 오류 코드가 'insufficient_funds_ask' 인 경우 발생
