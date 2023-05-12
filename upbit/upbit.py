@@ -192,7 +192,7 @@ class Upbit:
 
         return wrapper
 
-    def _get_request_headers(self, query: Dict = None) -> Dict:
+    def _get_request_headers(self, query: Dict = None, headers: Dict | None = None) -> Dict:
         payload = {
             "access_key": self._access_key,
             "nonce": str(_uuid.uuid4())
@@ -209,7 +209,10 @@ class Upbit:
 
         jwt_token = jwt.encode(payload, self._secret_key)
         authorization_token = 'Bearer {}'.format(jwt_token)
-        headers = {"Authorization": authorization_token}
+
+        if headers is None:
+            headers = {}
+        headers['Authorization'] = authorization_token
         return headers
 
     def get_remaining_reqs(self, group: RequestGroup) -> Optional[RemainingReq]:
@@ -273,7 +276,7 @@ class Upbit:
             }, ...]
         """
         url = self._endpoint + "/accounts"
-        headers = self._get_request_headers()
+        headers = self._get_request_headers(headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, **kwargs)
 
@@ -336,7 +339,7 @@ class Upbit:
         params = {
             "market": market,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
@@ -398,7 +401,7 @@ class Upbit:
             "uuid": uuid,
             "identifier": identifier,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
@@ -468,7 +471,7 @@ class Upbit:
             "limit": limit,
             "order_by": order_by,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
@@ -523,7 +526,7 @@ class Upbit:
             "uuid": uuid,
             "identifier": identifier,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('delete', url, headers=headers, params=params, **kwargs)
 
@@ -589,7 +592,7 @@ class Upbit:
             "ord_type": ord_type,
             "identifier": identifier,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('post', url, headers=headers, params=params, **kwargs)
 
@@ -656,7 +659,7 @@ class Upbit:
             "limit": limit,
             "order_by": order_by,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
@@ -707,7 +710,7 @@ class Upbit:
             "txid": txid,
             "currency": currency,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
@@ -780,7 +783,7 @@ class Upbit:
         params = {
             "currency": currency,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
@@ -838,7 +841,7 @@ class Upbit:
             "secondary_address": secondary_address,
             "transaction_type": transaction_type,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('post', url, headers=headers, json=params, **kwargs)
 
@@ -886,7 +889,7 @@ class Upbit:
             "amount": amount,
             "two_factor_type": two_factor_type,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('post', url, headers=headers, json=params, **kwargs)
 
@@ -953,7 +956,7 @@ class Upbit:
             "limit": limit,
             "order_by": order_by,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
@@ -1004,7 +1007,7 @@ class Upbit:
             "txid": txid,
             "currency": currency,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
@@ -1041,7 +1044,7 @@ class Upbit:
         params = {
             "currency": currency,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('post', url, headers=headers, json=params, **kwargs)
 
@@ -1074,7 +1077,7 @@ class Upbit:
             }, ...]
         """
         url = self._endpoint + "/deposits/coin_addresses"
-        headers = self._get_request_headers()
+        headers = self._get_request_headers(headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, **kwargs)
 
@@ -1112,7 +1115,7 @@ class Upbit:
         params = {
             "currency": currency,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
@@ -1160,7 +1163,7 @@ class Upbit:
             "amount": amount,
             "two_factor_type": two_factor_type,
         }
-        headers = self._get_request_headers(params)
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
         return self._request('post', url, headers=headers, json=params, **kwargs)
 
@@ -1200,7 +1203,7 @@ class Upbit:
             }, ...]
         """
         url = self._endpoint + "/status/wallet"
-        headers = self._get_request_headers()
+        headers = self._get_request_headers(headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, **kwargs)
 
@@ -1232,7 +1235,7 @@ class Upbit:
              }, ...]
         """
         url = self._endpoint + "/api_keys"
-        headers = self._get_request_headers()
+        headers = self._get_request_headers(headers=kwargs.pop('headers', None))
 
         return self._request('get', url, headers=headers, **kwargs)
 
