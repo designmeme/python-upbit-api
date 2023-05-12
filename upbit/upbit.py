@@ -121,7 +121,7 @@ class Upbit:
                 error_msg = f"{status_code} Client Error: {reason} for url: {url}"
 
                 # TooManyRequests 에러 처리
-                if status_code == 423:
+                if status_code == 429:
                     # 이 에러는 규격화된 Upbit 에러 JSON 바디를 갖지 않음.
                     raise TooManyRequests(error_msg, e)
 

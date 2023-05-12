@@ -30,7 +30,7 @@ class TestUpbit:
     @pytest.mark.parametrize(
         "exception, status_code, error_code",
         (
-            (TooManyRequests, 423, None),
+            (TooManyRequests, 429, None),
             (CreateAskError, 400, "create_ask_error"),
             (CreateBidError, 400, "create_bid_error"),
             (InsufficientFundsAsk, 400, "insufficient_funds_ask"),
