@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/designmeme/python-upbit-api/compare/v1.0.0...v1.0.1) (2023-05-12)
+
+
+### Bug Fixes
+
+* TooManyRequests 오류 상태 코드를 423에서 429로 수정 ([f8621ea](https://github.com/designmeme/python-upbit-api/commit/f8621eabcf12fc5383137d7beb2711e056a1eff3))
+* 거래 API 관련 메소드 호출시 요청 헤더 파라미터가 추가되지 않는 문제 해결 ([1aa28fc](https://github.com/designmeme/python-upbit-api/commit/1aa28fc3a7ff407b3046e04903ada6a73fa77071))
+
 ## [1.0.0](https://github.com/designmeme/python-upbit-api/compare/v1.0.0-alpha.2...v1.0.0) (2023-05-11)
 
 
