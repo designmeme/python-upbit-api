@@ -1207,6 +1207,7 @@ class Upbit:
 
             [{
                 'currency': 'BTC',
+                'net_type': 'BTC',
                 'wallet_state': 'working',
                 'block_state': 'normal',
                 'block_height': 776512,
