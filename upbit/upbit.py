@@ -879,6 +879,39 @@ class Upbit:
 
         return self._request('post', url, headers=headers, json=params, **kwargs)
 
+    def get_withdraw_addresses(self,
+                               **kwargs) -> Response:
+        """출금 허용 주소 리스트 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%B6%9C%EA%B8%88%ED%97%88%EC%9A%A9%EC%A3%BC%EC%86%8C-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C>`_
+
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_withdraw_addresses()
+            print(res.json())
+
+            [{
+                "currency": "BTC",
+                "net_type": "BTC",
+                "withdraw_address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+                "secondary_address": null
+            }, ...]
+        """
+        url = self._endpoint + "/withdraws/coin_addresses"
+        headers = self._get_request_headers(headers=kwargs.pop('headers', None))
+
+        return self._request('get', url, headers=headers, **kwargs)
+
     # --------------------------------------------------------------------------
     # Exchange API > 입금
     # --------------------------------------------------------------------------
