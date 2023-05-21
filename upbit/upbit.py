@@ -943,9 +943,9 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%9E%85%EA%B8%88-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C>`_
 
         :param currency: Currency 코드
-        :param state: 출금 상태
-        :param uuids: 출금 UUID 리스트
-        :param txids: 출금 TXID 리스트
+        :param state: 입금 상태
+        :param uuids: 입금 UUID 리스트
+        :param txids: 입금 TXID 리스트
         :param page: 페이지 수
         :param limit: 개수 제한 (default: 100, max: 100)
         :param order_by: 정렬 방식
