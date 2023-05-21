@@ -684,6 +684,7 @@ class Upbit:
                 "type": "withdraw",
                 "uuid": "9f432943-54e0-40b7-825f-b6fec8b42b79",
                 "currency": "BTC",
+                "net_type": "BTC",
                 "txid": null,
                 "state": "processing",
                 "created_at": "2018-04-13T11:24:01+09:00",
