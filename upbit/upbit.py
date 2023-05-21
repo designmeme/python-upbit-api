@@ -1279,7 +1279,7 @@ class Upbit:
     def get_markets(self,
                     is_detail: bool = False,
                     **kwargs) -> Response:
-        """거래 가능한 마켓 목록 조회
+        """마켓 코드 조회
 
         API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
         `Upbit API Doc <https://docs.upbit.com/reference/%EB%A7%88%EC%BC%93-%EC%BD%94%EB%93%9C-%EC%A1%B0%ED%9A%8C>`_
