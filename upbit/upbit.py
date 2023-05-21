@@ -705,6 +705,8 @@ class Upbit:
 
     def get_withdraw_chance(self,
                             currency: str,
+                            *,
+                            net_type: str,
                             **kwargs) -> Response:
         """출금 가능 정보 조회
 
@@ -712,6 +714,7 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%B6%9C%EA%B8%88-%EA%B0%80%EB%8A%A5-%EC%A0%95%EB%B3%B4>`_
 
         :param currency: Currency 코드
+        :param net_type: 출금 네트워크
         :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
@@ -723,7 +726,7 @@ class Upbit:
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
             upbit = Upbit(access_key, secret_key)
-            res = upbit.get_withdraw_chance('BTC')
+            res = upbit.get_withdraw_chance('BTC', net_type='BTC')
             print(res.json())
 
             {
@@ -770,6 +773,7 @@ class Upbit:
         url = self._endpoint + "/withdraws/chance"
         params = {
             "currency": currency,
+            "net_type": net_type,
         }
         headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
