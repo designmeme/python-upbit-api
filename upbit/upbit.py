@@ -1102,6 +1102,7 @@ class Upbit:
 
             [{
                 "currency": "BTC",
+                "net_type": "BTC",
                 "deposit_address": "3EusRwybuZUhVDeHL7gh3HSLmbhLcy7NqD",
                 "secondary_address": null
             }, ...]
