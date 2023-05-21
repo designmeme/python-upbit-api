@@ -790,7 +790,7 @@ class Upbit:
                              secondary_address: Optional[str] = None,
                              transaction_type: TransactionType = 'default',
                              **kwargs) -> Response:
-        """코인 출금하기
+        """디지털 자산 출금하기
 
         API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%BD%94%EC%9D%B8-%EC%B6%9C%EA%B8%88%ED%95%98%EA%B8%B0>`_
