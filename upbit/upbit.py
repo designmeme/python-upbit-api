@@ -25,7 +25,8 @@ from .models import (
     OrderState,
     OrderSide,
     OrderType,
-    TransactionStatus,
+    WithdrawState,
+    DepositState,
     TwoFactorType,
     TransactionType,
     MinuteUnit,
@@ -593,7 +594,7 @@ class Upbit:
 
     def get_withdraws(self,
                       currency: Optional[str] = None,
-                      state: Optional[TransactionStatus] = None,
+                      state: Optional[WithdrawState] = None,
                       uuids: Optional[list[str]] = None,
                       txids: Optional[list[str]] = None,
                       page: int = 1,
@@ -929,7 +930,7 @@ class Upbit:
 
     def get_deposits(self,
                      currency: Optional[str] = None,
-                     state: Optional[TransactionStatus] = None,
+                     state: Optional[DepositState] = None,
                      uuids: Optional[list[str]] = None,
                      txids: Optional[list[str]] = None,
                      page: int = 1,

@@ -35,8 +35,8 @@ OrderType = Literal['limit', 'price', 'market']
 - market: 시장가 주문(매도)
 """
 
-TransactionStatus = Literal['WAITING', 'PROCESSING', 'DONE', 'FAILED', 'CANCELLED', 'REJECTED']
-"""입출금 상태
+WithdrawState = Literal['WAITING', 'PROCESSING', 'DONE', 'FAILED', 'CANCELLED', 'REJECTED']
+"""출금 상태
 
 - WAITING: 대기중
 - PROCESSING: 진행중
@@ -44,6 +44,18 @@ TransactionStatus = Literal['WAITING', 'PROCESSING', 'DONE', 'FAILED', 'CANCELLE
 - FAILED: 실패
 - CANCELLED: 취소됨
 - REJECTED: 거절됨
+"""
+
+DepositState = Literal['PROCESSING', 'ACCEPTED', 'CANCELLED', 'REJECTED', 'TRAVEL_RULE_SUSPECTED', 'REFUNDING', 'REFUNDED']
+"""입금 상태
+
+- PROCESSING: 진행중
+- ACCEPTED: 완료
+- CANCELLED: 취소됨
+- REJECTED: 거절됨
+- TRAVEL_RULE_SUSPECTED: 트래블룰 추가 인증 대기중
+- REFUNDING: 반환절차 진행중
+- REFUNDED: 반환됨
 """
 
 TransactionType = Literal['default', 'internal']
