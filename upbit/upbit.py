@@ -781,6 +781,8 @@ class Upbit:
 
     def create_withdraw_coin(self,
                              currency: str,
+                             *,
+                             net_type: str,
                              amount: str,
                              address: str,
                              secondary_address: Optional[str] = None,
@@ -792,6 +794,7 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%BD%94%EC%9D%B8-%EC%B6%9C%EA%B8%88%ED%95%98%EA%B8%B0>`_
 
         :param currency: Currency 코드
+        :param net_type: 출금 네트워크
         :param amount: 출금 수량
         :param address: 출금 가능 주소에 등록된 출금 주소
         :param secondary_address: 2차 출금 주소 (필요한 코인에 한해서)
@@ -807,13 +810,14 @@ class Upbit:
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
             upbit = Upbit(access_key, secret_key)
-            res = upbit.create_withdraw_coin('BTC', '0.01', '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
+            res = upbit.create_withdraw_coin('BTC', net_type='BTC', amount='0.01', address='1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
             print(res.json())
 
             {
                 "type": "withdraw",
                 "uuid": "9f432943-54e0-40b7-825f-b6fec8b42b79",
                 "currency": "BTC",
+                "net_type": "BTC",
                 "txid": "ebe6937b-130e-4066-8ac6-4b0e67f28adc",
                 "state": "processing",
                 "created_at": "2018-04-13T11:24:01+09:00",
@@ -827,6 +831,7 @@ class Upbit:
         url = self._endpoint + "/withdraws/coin"
         params = {
             "currency": currency,
+            "net_type": net_type,
             "amount": amount,
             "address": address,
             "secondary_address": secondary_address,
