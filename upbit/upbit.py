@@ -630,6 +630,7 @@ class Upbit:
                 "type": "withdraw",
                 "uuid": "35a4f1dc-1db5-4d6b-89b5-7ec137875956",
                 "currency": "XRP",
+                "net_type": "XRP",
                 "txid": "98c15999f0bdc4ae0e8a-ed35868bb0c204fe6ec29e4058a3451e-88636d1040f4baddf943274ce37cf9cc",
                 "state": "DONE",
                 "created_at": "2019-02-28T15:17:51+09:00",
