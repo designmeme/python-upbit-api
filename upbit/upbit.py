@@ -1030,6 +1030,8 @@ class Upbit:
 
     def create_coin_address(self,
                             currency: str,
+                            *,
+                            net_type: str,
                             **kwargs) -> Response:
         """입금 주소 생성 요청
 
@@ -1037,6 +1039,7 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%9E%85%EA%B8%88-%EC%A3%BC%EC%86%8C-%EC%83%9D%EC%84%B1-%EC%9A%94%EC%B2%AD>`_
 
         :param currency: Currency 코드
+        :param net_type: 입금 네트워크
         :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
@@ -1048,7 +1051,7 @@ class Upbit:
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
             upbit = Upbit(access_key, secret_key)
-            res = upbit.create_coin_address('BTC')
+            res = upbit.create_coin_address('BTC', net_type='BTC')
             print(res.json())
 
             {
@@ -1059,6 +1062,7 @@ class Upbit:
         url = self._endpoint + "/deposits/generate_coin_address"
         params = {
             "currency": currency,
+            "net_type": net_type,
         }
         headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
 
