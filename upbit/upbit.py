@@ -340,6 +340,7 @@ class Upbit:
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
     def get_order(self,
+                  *,
                   uuid: Optional[str] = None,
                   identifier: Optional[str] = None,
                   **kwargs) -> Response:
@@ -363,7 +364,7 @@ class Upbit:
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
             upbit = Upbit(access_key, secret_key)
-            res = upbit.get_order('d7c96420-a9ab-4ae8-a461-3db412427fb3')
+            res = upbit.get_order(uuid='d7c96420-a9ab-4ae8-a461-3db412427fb3')
             print(res.json())
 
             {
@@ -401,6 +402,7 @@ class Upbit:
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
     def get_orders(self,
+                   *,
                    market: Optional[str] = None,
                    uuids: Optional[list[str]] = None,
                    identifiers: Optional[list[str]] = None,
@@ -470,6 +472,7 @@ class Upbit:
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
     def delete_order(self,
+                     *,
                      uuid: Optional[str] = None,
                      identifier: Optional[str] = None,
                      **kwargs) -> Response:
@@ -493,7 +496,7 @@ class Upbit:
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
             upbit = Upbit(access_key, secret_key)
-            res = upbit.delete_order('cdd92199-2897-4e14-9448-f923320408ad')
+            res = upbit.delete_order(uuid='cdd92199-2897-4e14-9448-f923320408ad')
             print(res.json())
 
             {
@@ -524,9 +527,10 @@ class Upbit:
         return self._request('delete', url, headers=headers, params=params, **kwargs)
 
     def create_order(self,
-                     market: str, 
-                     side: OrderSide, 
+                     market: str,
+                     side: OrderSide,
                      ord_type: OrderType,
+                     *,
                      volume: Optional[str] = None,
                      price: Optional[str] = None,
                      identifier: Optional[str] = None,
@@ -593,6 +597,7 @@ class Upbit:
     # --------------------------------------------------------------------------
 
     def get_withdraws(self,
+                      *,
                       currency: Optional[str] = None,
                       state: Optional[WithdrawState] = None,
                       uuids: Optional[list[str]] = None,
@@ -656,6 +661,7 @@ class Upbit:
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
     def get_withdraw(self,
+                     *,
                      uuid: Optional[str] = None,
                      txid: Optional[str] = None,
                      currency: Optional[str] = None,
@@ -679,7 +685,7 @@ class Upbit:
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
             upbit = Upbit(access_key, secret_key)
-            res = upbit.get_withdraw('9f432943-54e0-40b7-825f-b6fec8b42b79')
+            res = upbit.get_withdraw(uuid='9f432943-54e0-40b7-825f-b6fec8b42b79')
             print(res.json())
 
             {
@@ -846,6 +852,7 @@ class Upbit:
 
     def create_withdraw_krw(self,
                             amount: str,
+                            *,
                             two_factor_type: TwoFactorType = 'kakao_pay',
                             **kwargs) -> Response:
         """원화 출금하기
@@ -929,6 +936,7 @@ class Upbit:
     # --------------------------------------------------------------------------
 
     def get_deposits(self,
+                     *,
                      currency: Optional[str] = None,
                      state: Optional[DepositState] = None,
                      uuids: Optional[list[str]] = None,
@@ -991,6 +999,7 @@ class Upbit:
         return self._request('get', url, headers=headers, params=params, **kwargs)
 
     def get_deposit(self,
+                    *,
                     uuid: Optional[str] = None,
                     txid: Optional[str] = None,
                     currency: Optional[str] = None,
@@ -1014,7 +1023,7 @@ class Upbit:
             access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
             secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
             upbit = Upbit(access_key, secret_key)
-            res = upbit.get_deposit('94332e99-3a87-4a35-ad98-28b0c969f830')
+            res = upbit.get_deposit(uuid='94332e99-3a87-4a35-ad98-28b0c969f830')
             print(res.json())
 
             {
@@ -1157,6 +1166,7 @@ class Upbit:
 
     def create_deposit_krw(self,
                            amount: str,
+                           *,
                            two_factor_type: TwoFactorType = 'kakao_pay',
                            **kwargs) -> Response:
         """원화 입금하기
@@ -1317,6 +1327,7 @@ class Upbit:
     def get_candles_minute(self,
                            unit: MinuteUnit,
                            market: str,
+                           *,
                            to: Optional[str] = None,
                            count: Optional[int] = None,
                            **kwargs) -> Response:
@@ -1364,6 +1375,7 @@ class Upbit:
 
     def get_candles_day(self,
                         market: str,
+                        *,
                         to: Optional[str] = None,
                         count: Optional[int] = None,
                         converting_price_unit: Optional[str] = None,
@@ -1416,6 +1428,7 @@ class Upbit:
 
     def get_candles_week(self,
                          market: str,
+                         *,
                          to: Optional[str] = None,
                          count: Optional[int] = None,
                          **kwargs) -> Response:
@@ -1462,6 +1475,7 @@ class Upbit:
 
     def get_candles_month(self,
                           market: str,
+                          *,
                           to: Optional[str] = None,
                           count: Optional[int] = None,
                           **kwargs) -> Response:
@@ -1512,6 +1526,7 @@ class Upbit:
 
     def get_trades_ticks(self,
                          market: str,
+                         *,
                          to: Optional[str] = None,
                          count: Optional[int] = None,
                          cursor: Optional[str] = None,
