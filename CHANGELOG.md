@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.1.0](https://github.com/designmeme/python-upbit-api/compare/v1.0.1...v1.1.0) (2023-05-23)
+
+
+### Features
+
+* Keyword-Only Argument(*) 적용 ([fcdd448](https://github.com/designmeme/python-upbit-api/commit/fcdd4487b0801b16642eab489533cdf9dd5ee176))
+* 개별 입금 조회 메소드(get_deposit) 응답 예시에 net_type 필드 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([8f1f36e](https://github.com/designmeme/python-upbit-api/commit/8f1f36e114ccdd8be509948b3305b7d5a83393cc))
+* 개별 입금 주소 조회 메서드(get_coin_address)에 파라미터 net_type 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([1bbe25e](https://github.com/designmeme/python-upbit-api/commit/1bbe25eb433b502b23efb684b5a3118daf959ca1))
+* 개별 출금 조회 메소드(get_withdraw) 응답 예시에 net_type 필드 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([4b84960](https://github.com/designmeme/python-upbit-api/commit/4b8496074538b904cc341b798090ab842963e766))
+* 입금 리스트 조회 메소드(get_deposits) 응답 예시에 net_type 필드 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([d5b1e35](https://github.com/designmeme/python-upbit-api/commit/d5b1e3560eba18ee8a82f157681e2d4e8efe01af))
+* 입금 주소 생성 요청 메서드(create_coin_address)에 파라미터 net_type 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([37d9497](https://github.com/designmeme/python-upbit-api/commit/37d94972487bd72cd94af0fa3c2c5fdf3facac7a))
+* 입출금 현황 조회 메소드 get_wallet_status 응답 예시에 net_type 필드 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([5322894](https://github.com/designmeme/python-upbit-api/commit/5322894f2c9c8fca51ae1663286ab7fe83d7ded7))
+* 전체 입금 주소 조회 메소드(get_coin_addresses) 응답 예시에 net_type 필드 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([db7efd9](https://github.com/designmeme/python-upbit-api/commit/db7efd99eaa6d60b2a485d300470d329153098d2))
+* 출금 가능 정보 조회 메서드(get_withdraw_chance)에 파라미터 net_type 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([19afa7f](https://github.com/designmeme/python-upbit-api/commit/19afa7f3be0dda752c9ca3d22a233e2fbd48550e))
+* 출금 리스트 조회 메소드(get_withdraws) 응답 예시에 net_type 필드 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([e2c5565](https://github.com/designmeme/python-upbit-api/commit/e2c556567946d5b8537ba0dc8f6d61b1d7225116))
+* 출금 허용 주소 리스트 조회 메소드 get_withdraw_addresses 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([c263f5b](https://github.com/designmeme/python-upbit-api/commit/c263f5b597910e221fdc1f3e5ca669a8b377b0fd))
+* 코인 출금하기 메서드(create_withdraw_coin)에 파라미터 net_type 추가 [#1](https://github.com/designmeme/python-upbit-api/issues/1) ([fa8c956](https://github.com/designmeme/python-upbit-api/commit/fa8c956083b35dee275d1c410a22bc647b24626e))
+
+
+### Bug Fixes
+
+* TransactionStatus 모델을 WithdrawState, DepositState 두 개로 분리 ([b945f9d](https://github.com/designmeme/python-upbit-api/commit/b945f9d057cc05cab81c4ac5b77581620050d060))
+
+
+### Documentation
+
+* **readme:** TooManyRequests 오류 상태 코드를 423에서 429로 수정 ([c27e7e8](https://github.com/designmeme/python-upbit-api/commit/c27e7e83251db6f4b78cbf4d46f6d534dab26f32))
+* **readme:** 업비트 REST API 구현 메서드 정보 추가 ([29294d7](https://github.com/designmeme/python-upbit-api/commit/29294d761fd4b2fe63cfc8f827c4c144c61f7450))
+* TooManyRequests 오류 상태 코드를 423에서 429로 수정 ([aab65a9](https://github.com/designmeme/python-upbit-api/commit/aab65a9129f5e9b21c07ddac74110c664a34da56))
+* **upbit:** '거래 가능한 마켓 목록 조회' 이름을 '마켓 코드 조회'로 변경 ([3dda03b](https://github.com/designmeme/python-upbit-api/commit/3dda03ba5575e70d813e84b63246f2d1d02e2108))
+* **upbit:** '코인 출금하기' 이름을 '디지털 자산 출금하기'로 변경 ([4015b0a](https://github.com/designmeme/python-upbit-api/commit/4015b0aae13f50d2a5f1fd35fc9309ec2ccd5d5e))
+* 입금 리스트 조회 메서드(get_deposits)에서 파라미터 문구 오류 수정 ([87ce13d](https://github.com/designmeme/python-upbit-api/commit/87ce13d228f71b5a7f1a6f18bc70fe835d738e28))
+
 ## [1.0.1](https://github.com/designmeme/python-upbit-api/compare/v1.0.0...v1.0.1) (2023-05-12)
 
 
