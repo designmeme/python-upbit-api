@@ -975,6 +975,7 @@ class Upbit:
                 "type": "deposit",
                 "uuid": "94332e99-3a87-4a35-ad98-28b0c969f830",
                 "currency": "KRW",
+                "net_type": None,
                 "txid": "9e37c537-6849-4c8b-a134-57313f5dfc5a",
                 "state": "ACCEPTED",
                 "created_at": "2017-12-08T15:38:02+09:00",
