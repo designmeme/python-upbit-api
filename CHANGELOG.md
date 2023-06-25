@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/designmeme/python-upbit-api/compare/v1.1.0...v1.1.1) (2023-06-25)
+
+
+### Documentation
+
+* 출금 허용 주소 리스트 조회 응답 예시에 network_name 필드 추가 ([1628880](https://github.com/designmeme/python-upbit-api/commit/16288805fd605e0e3f77f6a4e0bdbc67117e548d))
+
 ## [1.1.0](https://github.com/designmeme/python-upbit-api/compare/v1.0.1...v1.1.0) (2023-05-23)
 
 
