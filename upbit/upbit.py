@@ -922,6 +922,7 @@ class Upbit:
             [{
                 "currency": "BTC",
                 "net_type": "BTC",
+                "network_name": "Bitcoin",
                 "withdraw_address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
                 "secondary_address": null
             }, ...]
