@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/designmeme/python-upbit-api/compare/v1.1.0...v1.2.0) (2023-11-06)
+
+
+### Features
+
+* 원화 입출금시 two_factor_type 지원 내용 변경안 반영 [#12](https://github.com/designmeme/python-upbit-api/issues/12) ([fe52bac](https://github.com/designmeme/python-upbit-api/commit/fe52baca45ddbea5884cb39bab9bdc54343c105d))
+
+
+### Documentation
+
+* 출금 허용 주소 리스트 조회 응답 예시에 network_name 필드 추가 ([1628880](https://github.com/designmeme/python-upbit-api/commit/16288805fd605e0e3f77f6a4e0bdbc67117e548d))
+
 ## [1.1.0](https://github.com/designmeme/python-upbit-api/compare/v1.0.1...v1.1.0) (2023-05-23)
 
 
