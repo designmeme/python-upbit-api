@@ -65,11 +65,12 @@ TransactionType = Literal['default', 'internal']
 - internal: 바로
 """
 
-TwoFactorType = Literal['kakao_pay', 'naver']
+TwoFactorType = Literal['kakao', 'naver', 'kakao_pay']
 """2차 인증 수단
 
-- kakao_pay: 카카오페이 인증
+- kakao: 카카오 인증. 2023.11.20 이후 사용 가능
 - naver: 네이버 인증
+- kakao_pay: 카카오 페이 인증(deprecated). 2023.12.18 이후 사용 불가
 """
 
 WalletState = Literal['working', 'withdraw_only', 'deposit_only', 'paused', 'unsupported']
