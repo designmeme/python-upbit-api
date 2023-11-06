@@ -853,7 +853,7 @@ class Upbit:
     def create_withdraw_krw(self,
                             amount: str,
                             *,
-                            two_factor_type: TwoFactorType = 'kakao_pay',
+                            two_factor_type: TwoFactorType,
                             **kwargs) -> Response:
         """원화 출금하기
 
@@ -1170,7 +1170,7 @@ class Upbit:
     def create_deposit_krw(self,
                            amount: str,
                            *,
-                           two_factor_type: TwoFactorType = 'kakao_pay',
+                           two_factor_type: TwoFactorType,
                            **kwargs) -> Response:
         """원화 입금하기
 
