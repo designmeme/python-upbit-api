@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.1](https://github.com/designmeme/python-upbit-api/compare/v1.2.0...v1.2.1) (2024-02-23)
+
+
+### Bug Fixes
+
+* __all__ 내용 추가 [#14](https://github.com/designmeme/python-upbit-api/issues/14) ([03c0057](https://github.com/designmeme/python-upbit-api/commit/03c0057684dfa71dfe558a8118602d716840cd22))
+
+
+### Documentation
+
+* 마켓 코드 조회 응답 예시에 market_event 필드 추가 및 market_warning 필드 삭제 ([58eea2a](https://github.com/designmeme/python-upbit-api/commit/58eea2ad154a0ebe51d4c3302bad0b5d48c9d68c))
+
 ## [1.2.0](https://github.com/designmeme/python-upbit-api/compare/v1.1.0...v1.2.0) (2023-11-06)
 
 
