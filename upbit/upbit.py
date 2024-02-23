@@ -1310,10 +1310,19 @@ class Upbit:
             print(res.json())
 
             [{
-                'market_warning': 'NONE',
-                'market': 'KRW-BTC',
-                'korean_name': '비트코인',
-                'english_name': 'Bitcoin'
+                "market": "KRW-BTC",
+                "korean_name": "비트코인",
+                "english_name": "Bitcoin",
+                "market_warning": "NONE",
+                "market_event": {
+                  "warning": false,
+                  "caution": {
+                    "PRICE_FLUCTUATIONS": false,
+                    "TRADING_VOLUME_SOARING": false,
+                    "DEPOSIT_AMOUNT_SOARING": true,
+                    "GLOBAL_PRICE_DIFFERENCES": false,
+                    "CONCENTRATION_OF_SMALL_ACCOUNTS": false
+                  }
             }, ...]
         """
         url = self._endpoint + "/market/all"
