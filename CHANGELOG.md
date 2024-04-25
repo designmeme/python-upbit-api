@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/designmeme/python-upbit-api/compare/v1.2.1...v1.3.0) (2024-04-25)
+
+
+### Features
+
+* 업비트 계정주 확인 API 추가(v1.4.5)에 맞춰 관련 메서드 추가 ([2ef7825](https://github.com/designmeme/python-upbit-api/commit/2ef78252f781896f90014cc93061f1a7b0231e80))
+
 ## [1.2.1](https://github.com/designmeme/python-upbit-api/compare/v1.2.0...v1.2.1) (2024-02-23)
 
 
