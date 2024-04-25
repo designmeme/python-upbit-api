@@ -1215,6 +1215,124 @@ class Upbit:
 
         return self._request('post', url, headers=headers, json=params, **kwargs)
 
+    def get_vasps(self, **kwargs) -> Response:
+        """계정주 확인(트래블룰 검증)가능 거래소 리스트 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%ED%8A%B8%EB%9E%98%EB%B8%94%EB%A3%B0-%EA%B0%80%EB%8A%A5-%EA%B1%B0%EB%9E%98%EC%86%8C>`_
+
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_vasps()
+            print(res.json())
+
+            [{
+              "vasp_name": "업비트 인도네시아",
+              "vasp_uuid": "00000000-0000-0000-0000-000000000000",
+              "depositable": True,
+              "withdrawable": True
+            }, ...]
+        """
+        url = self._endpoint + "/travel_rule/vasps"
+        headers = self._get_request_headers(headers=kwargs.pop('headers', None))
+
+        return self._request('get', url, headers=headers, **kwargs)
+
+    def verify_travel_rule_by_uuid(self, *,
+                                   vasp_uuid: str,
+                                   deposit_uuid: str,
+                                   **kwargs) -> Response:
+        """입금 UUID로 트래블룰 검증하기
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%ED%8A%B8%EB%9E%98%EB%B8%94%EB%A3%B0-uuid>`_
+
+        :param vasp_uuid: 상대 거래소 UUID
+        :param deposit_uuid: 입금 UUID
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.verify_travel_rule_by_uuid(deposit_uuid='xxx', vasp_uuid='xxx')
+            print(res.json())
+
+            {
+              "deposit_uuid": "00000000-0000-0000-0000-000000000000",
+              "verification_result": "verified",
+              "deposit_state": "PROCESSING"
+            }
+        """
+        url = self._endpoint + "/travel_rule/deposit/uuid"
+        params = {
+            "vasp_uuid": vasp_uuid,
+            "deposit_uuid": deposit_uuid,
+        }
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
+
+        return self._request('post', url, headers=headers, json=params, **kwargs)
+
+    def verify_travel_rule_by_txid(self, *,
+                                   vasp_uuid: str,
+                                   txid: str,
+                                   currency: str,
+                                   net_type: str,
+                                   **kwargs) -> Response:
+        """입금 TxID로 트래블룰 검증하기
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%ED%8A%B8%EB%9E%98%EB%B8%94%EB%A3%B0-txid>`_
+
+        :param vasp_uuid: 상대 거래소 UUID
+        :param txid: 입금 TxID
+        :param currency: 입금 화폐
+        :param net_type: 입금 네트워크 타입
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.verify_travel_rule_by_txid(deposit_uuid='xxx', vasp_uuid='xxx')
+            print(res.json())
+
+            {
+              "deposit_uuid": "00000000-0000-0000-0000-000000000000",
+              "verification_result": "verified",
+              "deposit_state": "PROCESSING"
+            }
+        """
+        url = self._endpoint + "/travel_rule/deposit/txid"
+        params = {
+            "vasp_uuid": vasp_uuid,
+            "txid": txid,
+            "currency": currency,
+            "net_type": net_type,
+        }
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
+
+        return self._request('post', url, headers=headers, json=params, **kwargs)
+
     # --------------------------------------------------------------------------
     # Exchange API > 서비스 정보
     # --------------------------------------------------------------------------

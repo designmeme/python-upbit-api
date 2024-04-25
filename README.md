@@ -83,6 +83,9 @@ data = res.json()
 |  | 전체 입금 주소 조회 | get_coin_addresses |
 |  | 개별 입금 주소 조회 | get_coin_address |
 |  | 원화 입금하기  | create_deposit_krw |
+|  | 계정주 확인(트래블룰 검증)가능 거래소 리스트 조회 | get_vasps |
+|  | 입금 UUID로 트래블룰 검증하기 | verify_travel_rule_by_uuid |
+|  | 입금 TxID로 트래블룰 검증하기 | verify_travel_rule_by_txid |
 | 서비스 정보 | 입출금 현황 | get_wallet_status |
 |  | API 키 리스트 조회 | get_api_keys |
 | 시세 종목 조회 | 마켓 코드 조회 | get_markets |
