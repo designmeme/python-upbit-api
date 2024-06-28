@@ -31,7 +31,7 @@ from .models import (
     TransactionType,
     MinuteUnit,
     RequestGroup,
-    RemainingReq,
+    RemainingReq, OpenOrderState, ClosedOrderState,
 )
 
 
@@ -412,7 +412,7 @@ class Upbit:
                    limit: int = 100,
                    order_by: OrderBy = 'desc',
                    **kwargs) -> Response:
-        """주문 리스트 조회
+        """주문 리스트 조회 - Deprecated (2024.06~)
 
         API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
         `Upbit API Doc <https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8-%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%A1%B0%ED%9A%8C>`_
@@ -464,6 +464,201 @@ class Upbit:
             "state": state,
             "states[]": states,
             "page": page,
+            "limit": limit,
+            "order_by": order_by,
+        }
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
+
+        return self._request('get', url, headers=headers, params=params, **kwargs)
+
+    def get_orders_by_id(self,
+                         *,
+                         market: Optional[str] = None,
+                         uuids: Optional[list[str]] = None,
+                         identifiers: Optional[list[str]] = None,
+                         order_by: OrderBy = 'desc',
+                         **kwargs) -> Response:
+        """id로 주문리스트 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/id%EB%A1%9C-%EC%A3%BC%EB%AC%B8-%EC%A1%B0%ED%9A%8C>`_
+
+        :param market: 마켓 코드 (ex. KRW-BTC)
+        :param uuids: 주문 UUID 리스트
+        :param identifiers: 주문 identifier 리스트
+        :param order_by: 정렬 방식
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_orders_by_id(uuids=['xxxxxxxx'])
+            print(res.json())
+
+            [{
+                "uuid": "d098ceaf-6811-4df8-97f2-b7e01aefc03f",
+                "side": "bid",
+                "ord_type": "limit",
+                "price": "104812000",
+                "state": "wait",
+                "market": "KRW-BTC",
+                "created_at": "2024-06-13T10:26:21+09:00",
+                "volume": "0.00101749",
+                "remaining_volume": "0.00006266",
+                "reserved_fee": "53.32258094",
+                "remaining_fee": "3.28375996",
+                "paid_fee": "50.03882098",
+                "locked": "6570.80367996",
+                "executed_volume": "0.00095483",
+                "executed_funds": "100077.64196",
+                "trades_count": 1
+            }, ...]
+        """
+        url = self._endpoint + "/orders/uuids"
+        params = {
+            "market": market,
+            "uuids[]": uuids,
+            "identifiers[]": identifiers,
+            "order_by": order_by,
+        }
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
+
+        return self._request('get', url, headers=headers, params=params, **kwargs)
+
+    def get_open_orders(self,
+                        *,
+                        market: Optional[str] = None,
+                        state: OpenOrderState = 'wait',
+                        states: Optional[list[OpenOrderState]] = None,
+                        page: int = 1,
+                        limit: int = 100,
+                        order_by: OrderBy = 'desc',
+                        **kwargs) -> Response:
+        """체결 대기 주문 (Open Order) 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EB%8C%80%EA%B8%B0-%EC%A3%BC%EB%AC%B8-%EC%A1%B0%ED%9A%8C>`_
+
+        :param market: 마켓 코드 (ex. KRW-BTC)
+        :param state: 주문 상태
+        :param states: 주문 상태 리스트
+        :param page: 페이지 수
+        :param limit: 요청 개수
+        :param order_by: 정렬 방식
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_open_orders(market='KRW-BTC', state='wait')
+            print(res.json())
+
+            [{
+                "uuid": "d098ceaf-6811-4df8-97f2-b7e01aefc03f",
+                "side": "bid",
+                "ord_type": "limit",
+                "price": "104812000",
+                "state": "wait",
+                "market": "KRW-BTC",
+                "created_at": "2024-06-13T10:26:21+09:00",
+                "volume": "0.00101749",
+                "remaining_volume": "0.00006266",
+                "reserved_fee": "53.32258094",
+                "remaining_fee": "3.28375996",
+                "paid_fee": "50.03882098",
+                "locked": "6570.80367996",
+                "executed_volume": "0.00095483",
+                "executed_funds": "100077.64196",
+                "trades_count": 1
+            }, ...]
+        """
+        url = self._endpoint + "/orders/open"
+        params = {
+            "market": market,
+            "state": state,
+            "states[]": states,
+            "page": page,
+            "limit": limit,
+            "order_by": order_by,
+        }
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
+
+        return self._request('get', url, headers=headers, params=params, **kwargs)
+
+    def get_closed_orders(self,
+                          *,
+                          market: Optional[str] = None,
+                          state: ClosedOrderState = 'done',
+                          states: Optional[list[ClosedOrderState]] = None,
+                          start_time: str | None = None,
+                          end_time: str | None = None,
+                          limit: int = 100,
+                          order_by: OrderBy = 'desc',
+                          **kwargs) -> Response:
+        """종료된 주문 (Closed Order) 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A2%85%EB%A3%8C-%EC%A3%BC%EB%AC%B8-%EC%A1%B0%ED%9A%8C>`_
+
+        :param market: 마켓 코드 (ex. KRW-BTC)
+        :param state: 주문 상태
+        :param states: 주문 상태 리스트
+        :param start_time: 조회 시작 시간 (주문 생성시간 기준)
+        :param end_time: 조회 종료 시간 (주문 생성시간 기준)
+        :param limit: 요청 개수
+        :param order_by: 정렬 방식
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.get_closed_orders(market='KRW-BTC', state='done')
+            print(res.json())
+
+            [{
+                "uuid": "e5715c44-2d1a-41e6-91d8-afa579e28731",
+                "side": "ask",
+                "ord_type": "limit",
+                "price": "103813000",
+                "state": "done",
+                "market": "KRW-BTC",
+                "created_at": "2024-06-13T10:28:36+09:00",
+                "volume": "0.00039132",
+                "remaining_volume": "0",
+                "reserved_fee": "0",
+                "remaining_fee": "0",
+                "paid_fee": "20.44627434",
+                "locked": "0",
+                "executed_volume": "0.00039132",
+                "executed_funds": "40892.54868",
+                "trades_count": 2
+            }, ...]
+        """
+        url = self._endpoint + "/orders/closed"
+        params = {
+            "market": market,
+            "state": state,
+            "states[]": states,
+            "start_time": start_time,
+            "end_time": end_time,
             "limit": limit,
             "order_by": order_by,
         }

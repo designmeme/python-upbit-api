@@ -63,39 +63,42 @@ data = res.json()
 [업비트 REST API][upbit docs api]를 `Upbit` 클래스의 메서드로 제공합니다.
 자세한 내용은 [upbit.py](https://github.com/designmeme/python-upbit-api/blob/main/upbit/upbit.py) 파일 내 docstring 참조.
 
-|    |             | 메서드명         |
-|----|:------------|:-------------|
-| 자산 | 전체 계좌 조회    | get_accounts |
-| 주문 | 주문 가능 정보    | get_order_chance |
-|  | 개별 주문 조회    | get_order |
-|  | 주문 리스트 조회   | get_orders |
-|  | 주문 취소 접수    | delete_order |
-|  | 주문하기        | create_order |
-| 출금 | 출금 리스트 조회   | get_withdraws |
-|  | 개별 출금 조회    | get_withdraw |
-|  | 출금 가능 정보    | get_withdraw_chance |
-|  | 디지털 자산 출금하기 | create_withdraw_coin |
-|  | 원화 출금하기     | create_withdraw_krw |
-|  | 출금 허용 주소 리스트 조회 | get_withdraw_addresses |
-| 입금 | 입금 리스트 조회   | get_deposits |
-|  | 개별 입금 조회    | get_deposit |
-|  | 입금 주소 생성 요청 | create_coin_address |
-|  | 전체 입금 주소 조회 | get_coin_addresses |
-|  | 개별 입금 주소 조회 | get_coin_address |
-|  | 원화 입금하기  | create_deposit_krw |
-|  | 계정주 확인(트래블룰 검증)가능 거래소 리스트 조회 | get_vasps |
+|    |             | 메서드명                       |
+|----|:------------|:---------------------------|
+| 자산 | 전체 계좌 조회    | get_accounts               |
+| 주문 | 주문 가능 정보    | get_order_chance           |
+|  | 개별 주문 조회    | get_order                  |
+|  | 주문 리스트 조회   | get_orders                 |
+|  | id로 주문리스트 조회   | get_orders_by_id           |
+|  | 체결 대기 주문 (Open Order) 조회   | get_open_orders            |
+|  | 종료된 주문 (Closed Order) 조회   | get_closed_orders          |
+|  | 주문 취소 접수    | delete_order               |
+|  | 주문하기        | create_order               |
+| 출금 | 출금 리스트 조회   | get_withdraws              |
+|  | 개별 출금 조회    | get_withdraw               |
+|  | 출금 가능 정보    | get_withdraw_chance        |
+|  | 디지털 자산 출금하기 | create_withdraw_coin       |
+|  | 원화 출금하기     | create_withdraw_krw        |
+|  | 출금 허용 주소 리스트 조회 | get_withdraw_addresses     |
+| 입금 | 입금 리스트 조회   | get_deposits               |
+|  | 개별 입금 조회    | get_deposit                |
+|  | 입금 주소 생성 요청 | create_coin_address        |
+|  | 전체 입금 주소 조회 | get_coin_addresses         |
+|  | 개별 입금 주소 조회 | get_coin_address           |
+|  | 원화 입금하기  | create_deposit_krw         |
+|  | 계정주 확인(트래블룰 검증)가능 거래소 리스트 조회 | get_vasps                  |
 |  | 입금 UUID로 트래블룰 검증하기 | verify_travel_rule_by_uuid |
 |  | 입금 TxID로 트래블룰 검증하기 | verify_travel_rule_by_txid |
-| 서비스 정보 | 입출금 현황 | get_wallet_status |
-|  | API 키 리스트 조회 | get_api_keys |
-| 시세 종목 조회 | 마켓 코드 조회 | get_markets |
-| 시세 캔들 조회 | 분(Minute) 캔들 | get_candles_minute |
-|  | 일(Day) 캔들 | get_candles_day |
-|  | 주(Week) 캔들 | get_candles_week |
-|  | 월(Month) 캔들 | get_candles_month |
-| 시세 체결 조회 | 최근 체결 내역 | get_trades_ticks |
-| 시세 현재가 조회 | 현재가 정보 | get_ticker |
-| 시세 호가 조회 | 호가 정보 | get_orderbook |
+| 서비스 정보 | 입출금 현황 | get_wallet_status          |
+|  | API 키 리스트 조회 | get_api_keys               |
+| 시세 종목 조회 | 마켓 코드 조회 | get_markets                |
+| 시세 캔들 조회 | 분(Minute) 캔들 | get_candles_minute         |
+|  | 일(Day) 캔들 | get_candles_day            |
+|  | 주(Week) 캔들 | get_candles_week           |
+|  | 월(Month) 캔들 | get_candles_month          |
+| 시세 체결 조회 | 최근 체결 내역 | get_trades_ticks           |
+| 시세 현재가 조회 | 현재가 정보 | get_ticker                 |
+| 시세 호가 조회 | 호가 정보 | get_orderbook              |
 
 ### Requests 사용
 [Requests][requests] 라이브러리를 사용합니다.

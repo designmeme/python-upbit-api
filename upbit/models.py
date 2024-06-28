@@ -11,6 +11,8 @@ OrderBy = Literal['asc', 'desc']
 - desc: 내림차순
 """
 
+OpenOrderState = Literal['wait', 'watch']
+ClosedOrderState = Literal['done', 'cancel']
 OrderState = Literal['wait', 'watch', 'done', 'cancel']
 """주문 상태
 
