@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/designmeme/python-upbit-api/compare/v1.3.0...v1.4.0) (2024-06-28)
+
+
+### Features
+
+* 업비트 주문 리스트 조회 API 추가(v1.4.8)에 맞춰 관련 메서드 추가 ([36895a5](https://github.com/designmeme/python-upbit-api/commit/36895a5854a88939b5dabde66f6cbaddb71f82b3))
+
 ## [1.3.0](https://github.com/designmeme/python-upbit-api/compare/v1.2.1...v1.3.0) (2024-04-25)
 
 
