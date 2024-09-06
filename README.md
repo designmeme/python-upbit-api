@@ -98,6 +98,7 @@ data = res.json()
 |  | 월(Month) 캔들 | get_candles_month          |
 | 시세 체결 조회 | 최근 체결 내역 | get_trades_ticks           |
 | 시세 현재가 조회 | 현재가 정보 | get_ticker                 |
+| 시세 현재가 조회 | 마켓 단위 현재가 정보 | get_tickers_by_quote                 |
 | 시세 호가 조회 | 호가 정보 | get_orderbook              |
 
 ### Requests 사용

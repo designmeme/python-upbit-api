@@ -1960,6 +1960,61 @@ class Upbit:
 
         return self._request('get', url, params=params, **kwargs)
 
+    def get_tickers_by_quote(self,
+                             quotes: list[str],
+                             **kwargs) -> Response:
+        """마켓 단위 현재가 정보 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/tickers_by_quote>`_
+
+        :param quotes: 반점으로 구분되는 거래 화폐 코드 (ex. ["KRW", "BTC", "USDT"])
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :return: API 서버 응답
+
+        Usage::
+
+            upbit = Upbit()
+            res = upbit.get_tickers_by_quote(['KRW'])
+            print(res.json())
+
+            [{
+                'market': 'KRW-BTC',
+                'trade_date': '20230214',
+                'trade_time': '130155',
+                'trade_date_kst': '20230214',
+                'trade_time_kst': '220155',
+                'trade_timestamp': 1676379715095,
+                'opening_price': 28334000,
+                'high_price': 28344000,
+                'low_price': 28055000,
+                'trade_price': 28256000,
+                'prev_closing_price': 28309000.0,
+                'change': 'FALL',
+                'change_price': 53000.0,
+                'change_rate': 0.0018721961,
+                'signed_change_price': -53000.0,
+                'signed_change_rate': -0.0018721961,
+                'trade_volume': 0.01116417,
+                'acc_trade_price': 101147638956.17886,
+                'acc_trade_price_24h': 136755693662.07787,
+                'acc_trade_volume': 3589.8072519,
+                'acc_trade_volume_24h': 4856.21610445,
+                'highest_52_week_price': 57678000.0,
+                'highest_52_week_date': '2022-03-28',
+                'lowest_52_week_price': 20700000.0,
+                'lowest_52_week_date': '2022-12-30',
+                'timestamp': 1676379715138
+            }, ...]
+        """
+        url = self._endpoint + "/ticker/all"
+        params = {
+            "quoteCurrencies": quotes,
+        }
+
+        return self._request('get', url, params=params, **kwargs)
+
     # --------------------------------------------------------------------------
     # Quotation API > 시세 호가 조회
     # --------------------------------------------------------------------------
