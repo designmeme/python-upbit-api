@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/designmeme/python-upbit-api/compare/v1.4.0...v1.5.0) (2024-09-06)
+
+
+### Features
+
+* 업비트 마켓 단위 현재가 정보 API 추가(v1.5.1)에 맞춰 관련 메서드 추가 ([3941c7c](https://github.com/designmeme/python-upbit-api/commit/3941c7cd1d3bf8f04e762a8553a2fc4edbabfe61))
+
 ## [1.4.0](https://github.com/designmeme/python-upbit-api/compare/v1.3.0...v1.4.0) (2024-06-28)
 
 
