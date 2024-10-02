@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/designmeme/python-upbit-api/compare/v1.5.0...v1.5.1) (2024-10-02)
+
+
+### Bug Fixes
+
+* RemainingReq 클래스에서 updated 프로퍼티를 타임존 추가한 updated_at 로 변경 ([4693feb](https://github.com/designmeme/python-upbit-api/commit/4693feb39bfd109e6d6848807f2b74031c6b60e8))
+
 ## [1.5.0](https://github.com/designmeme/python-upbit-api/compare/v1.4.0...v1.5.0) (2024-09-06)
 
 
