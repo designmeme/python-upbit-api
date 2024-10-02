@@ -129,7 +129,8 @@ class RemainingReq:
     :param group: RequestGroup 잔여 요청 그룹명
     :param minute: 그룹별 분당 남은 요청수.
     :param second: 그룹별 초당 남은 요청수.
-    :param updated: 요청수 응답을 저장한 일시.
+    :param updated: 요청수 응답을 저장한 일시. Deprecated. 삭제 예정.
+    :param updated_at: 요청수 응답을 저장한 일시.
     """
 
     def __init__(self, remaining_req: str):
@@ -147,10 +148,12 @@ class RemainingReq:
             self.second: int = int(matched.group(3))
         except AttributeError:
             raise InvalidRemainingReq(f'Invalid Remaining Req {remaining_req=!r}')
+        # todo delete: Deprecated. 삭제 예정.
         self.updated: datetime.datetime = datetime.datetime.now()
+        self.updated_at: datetime.datetime = datetime.datetime.now(tz=datetime.timezone.utc)
 
     def __str__(self):
-        return f"RemainingReq group={self.group!r}; min={self.minute!r}; sec={self.second!r}; updated={self.updated!r}"
+        return f"RemainingReq group={self.group!r}; min={self.minute!r}; sec={self.second!r}; updated_at={self.updated_at!r}"
 
     def __repr__(self):
         return f"RemainingReq(${self._remaining_req!r})"
