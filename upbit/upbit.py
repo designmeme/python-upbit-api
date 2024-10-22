@@ -940,7 +940,7 @@ class Upbit:
                     "email_verified": true,
                     "identity_auth_verified": true,
                     "bank_account_verified": true,
-                    "kakao_pay_auth_verified": false,
+                    "two_factor_auth_verified": true,
                     "locked": false,
                     "wallet_locked": false
                 },
@@ -964,13 +964,16 @@ class Upbit:
                 },
                 "withdraw_limit": {
                     "currency": "BTC",
-                    "minimum": null,
+                    "minimum": "0.001",
                     "onetime": null,
                     "daily": "10.0",
                     "remaining_daily": "10.0",
                     "remaining_daily_krw": "0.0",
-                    "fixed": null,
-                    "can_withdraw": true
+                    "remaining_daily_fiat": "0.0",
+                    "fiat_currency": "KRW",
+                    "withdraw_delayed_fiat": "0.0",
+                    "fixed": 8,
+                    "can_withdraw": true,
                 }
             }
         """
