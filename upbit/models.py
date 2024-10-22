@@ -67,11 +67,12 @@ TransactionType = Literal['default', 'internal']
 - internal: 바로
 """
 
-TwoFactorType = Literal['kakao', 'naver']
+TwoFactorType = Literal['kakao', 'naver', 'hana']
 """2차 인증 수단
 
-- kakao: 카카오 인증. 2023.11.20 이후 사용 가능
+- kakao: 카카오 인증
 - naver: 네이버 인증
+- hana: 하나인증서 인증
 """
 
 WalletState = Literal['working', 'withdraw_only', 'deposit_only', 'paused', 'unsupported']
