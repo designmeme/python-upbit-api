@@ -4,7 +4,7 @@ import functools
 import hashlib
 import logging
 import uuid as _uuid
-from typing import Any, Optional, Literal, Dict, Callable, Tuple
+from typing import Any, Optional, Literal, Dict, Callable, Tuple, List, Union
 from urllib.parse import urlencode, unquote
 
 import jwt
@@ -37,10 +37,10 @@ from .models import (
 
 class Upbit:
     def __init__(self,
-                 access_key: str | None = None,
-                 secret_key: str | None = None,
-                 http_adapter: HTTPAdapter | None = None,
-                 timeout: float | Tuple[float, float] | Tuple[float, None] | None = None,
+                 access_key: Optional[str] = None,
+                 secret_key: Optional[str] = None,
+                 http_adapter: Optional[HTTPAdapter] = None,
+                 timeout: Union[float, Tuple[float, float], Tuple[float, None]] = None,
                  ):
         """
         :param access_key: 업비트 API Access Key
@@ -178,7 +178,7 @@ class Upbit:
             self._logger.warning(f"Upbit API 잔여 요청수 처리 에러. {remaining_req=!r} {e!r}")
             pass
 
-    def _get_request_headers(self, query: Dict = None, headers: Dict | None = None) -> Dict:
+    def _get_request_headers(self, query: dict = None, headers: dict = None) -> Dict:
         """인증 헤더를 만들어 반환한다.
 
         :param query: 요청 바디
@@ -403,11 +403,11 @@ class Upbit:
 
     def get_orders(self,
                    *,
-                   market: Optional[str] = None,
-                   uuids: Optional[list[str]] = None,
-                   identifiers: Optional[list[str]] = None,
+                   market: str = None,
+                   uuids: List[str] = None,
+                   identifiers: List[str] = None,
                    state: OrderState = 'wait',
-                   states: Optional[list[OrderState]] = None,
+                   states: List[OrderState] = None,
                    page: int = 1,
                    limit: int = 100,
                    order_by: OrderBy = 'desc',
@@ -474,8 +474,8 @@ class Upbit:
     def get_orders_by_id(self,
                          *,
                          market: Optional[str] = None,
-                         uuids: Optional[list[str]] = None,
-                         identifiers: Optional[list[str]] = None,
+                         uuids: Optional[List[str]] = None,
+                         identifiers: Optional[List[str]] = None,
                          order_by: OrderBy = 'desc',
                          **kwargs) -> Response:
         """id로 주문리스트 조회
@@ -535,7 +535,7 @@ class Upbit:
                         *,
                         market: Optional[str] = None,
                         state: OpenOrderState = 'wait',
-                        states: Optional[list[OpenOrderState]] = None,
+                        states: Optional[List[OpenOrderState]] = None,
                         page: int = 1,
                         limit: int = 100,
                         order_by: OrderBy = 'desc',
@@ -601,9 +601,9 @@ class Upbit:
                           *,
                           market: Optional[str] = None,
                           state: ClosedOrderState = 'done',
-                          states: Optional[list[ClosedOrderState]] = None,
-                          start_time: str | None = None,
-                          end_time: str | None = None,
+                          states: Optional[List[ClosedOrderState]] = None,
+                          start_time: Optional[str] = None,
+                          end_time: Optional[str] = None,
                           limit: int = 100,
                           order_by: OrderBy = 'desc',
                           **kwargs) -> Response:
@@ -795,8 +795,8 @@ class Upbit:
                       *,
                       currency: Optional[str] = None,
                       state: Optional[WithdrawState] = None,
-                      uuids: Optional[list[str]] = None,
-                      txids: Optional[list[str]] = None,
+                      uuids: Optional[List[str]] = None,
+                      txids: Optional[List[str]] = None,
                       page: int = 1,
                       limit: int = 100,
                       order_by: OrderBy = 'desc',
@@ -1138,8 +1138,8 @@ class Upbit:
                      *,
                      currency: Optional[str] = None,
                      state: Optional[DepositState] = None,
-                     uuids: Optional[list[str]] = None,
-                     txids: Optional[list[str]] = None,
+                     uuids: Optional[List[str]] = None,
+                     txids: Optional[List[str]] = None,
                      page: int = 1,
                      limit: int = 100,
                      order_by: OrderBy = 'desc',
@@ -1909,7 +1909,7 @@ class Upbit:
     # --------------------------------------------------------------------------
 
     def get_ticker(self,
-                   markets: list[str],
+                   markets: List[str],
                    **kwargs) -> Response:
         """현재가 정보 조회
 
@@ -1964,7 +1964,7 @@ class Upbit:
         return self._request('get', url, params=params, **kwargs)
 
     def get_tickers_by_quote(self,
-                             quotes: list[str],
+                             quotes: List[str],
                              **kwargs) -> Response:
         """마켓 단위 현재가 정보 조회
 
@@ -2023,7 +2023,7 @@ class Upbit:
     # --------------------------------------------------------------------------
 
     def get_orderbook(self,
-                      markets: [str],
+                      markets: List[str],
                       **kwargs) -> Response:
         """호가 정보 조회
 
