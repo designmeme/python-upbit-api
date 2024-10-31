@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.6.0](https://github.com/designmeme/python-upbit-api/compare/v1.5.1...v1.6.0) (2024-10-31)
+
+
+### Features
+
+* 연 캔들 조회 메서드 get_candles_year 추가 (upbit api v1.5.4) ([784490d](https://github.com/designmeme/python-upbit-api/commit/784490dc711444291bfeb4651dae322ea75778d9))
+* 초 캔들 조회 메서드 get_candles_second 추가 (upbit api v1.5.4) ([4ba98f7](https://github.com/designmeme/python-upbit-api/commit/4ba98f7aea2acd6a1fdb38c2f323712db00c3ce0))
+
+
+### Bug Fixes
+
+* TwoFactorType 타입 값에 hana 추가 ([3f0cb8b](https://github.com/designmeme/python-upbit-api/commit/3f0cb8b2054f17524f947fd3b1b234b2c61454ef))
+* TwoFactorType 타입 값에서 kakao_pay 삭제 ([87a25b0](https://github.com/designmeme/python-upbit-api/commit/87a25b043c1cc947d05fc975819f5f26b52ab747))
+* type hints 작성 오류 수정 ([f2e2dca](https://github.com/designmeme/python-upbit-api/commit/f2e2dca86c671bfa9b131d8bc664ef8b8d18949a))
+
+
+### Documentation
+
+* get_withdraw_chance 메서드 응답값 예시 업데이트 ([3f2aeac](https://github.com/designmeme/python-upbit-api/commit/3f2aeac41b91430d08b310df16dc250918642d15))
+
 ## [1.5.1](https://github.com/designmeme/python-upbit-api/compare/v1.5.0...v1.5.1) (2024-10-02)
 
 
