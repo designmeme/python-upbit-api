@@ -1701,6 +1701,52 @@ class Upbit:
 
         return self._request('get', url, params=params, **kwargs)
 
+    def get_candles_second(self,
+                           market: str,
+                           *,
+                           to: Optional[str] = None,
+                           count: Optional[int] = None,
+                           **kwargs) -> Response:
+        """초(Second) 캔들 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%B4%88second-%EC%BA%94%EB%93%A4>`_
+
+        :param market: 마켓 코드 (ex. KRW-BTC)
+        :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
+        :param count: 캔들 개수. 최대 200
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :return: API 서버 응답
+
+        Usage::
+
+            upbit = Upbit()
+            res = upbit.get_candles_second('KRW-BTC')
+            print(res.json())
+
+            [{
+                "market": "KRW-BTC",
+                "candle_date_time_utc": "2024-07-30T09:32:41",
+                "candle_date_time_kst": "2024-07-30T18:32:41",
+                "opening_price": 93557000,
+                "high_price": 93557000,
+                "low_price": 93551000,
+                "trade_price": 93551000,
+                "timestamp": 1722331961297,
+                "candle_acc_trade_price": 485957.73742,
+                "candle_acc_trade_volume": 0.0051944
+            }, ...]
+        """
+        url = self._endpoint + "/candles/seconds/"
+        params = {
+            "market": market,
+            "to": to,
+            "count": count,
+        }
+
+        return self._request('get', url, params=params, **kwargs)
+
     def get_candles_day(self,
                         market: str,
                         *,
