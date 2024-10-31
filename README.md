@@ -97,6 +97,7 @@ data = res.json()
 |  | 일(Day) 캔들                    | get_candles_day            |
 |  | 주(Week) 캔들                   | get_candles_week           |
 |  | 월(Month) 캔들                  | get_candles_month          |
+|  | 연(Year) 캔들                  | get_candles_year          |
 | 시세 체결 조회 | 최근 체결 내역                     | get_trades_ticks           |
 | 시세 현재가 조회 | 현재가 정보                       | get_ticker                 |
 | 시세 현재가 조회 | 마켓 단위 현재가 정보                 | get_tickers_by_quote       |
