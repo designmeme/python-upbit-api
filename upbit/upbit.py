@@ -2117,6 +2117,8 @@ class Upbit:
 
     def get_orderbook(self,
                       markets: List[str],
+                      *,
+                      level: float = None,
                       **kwargs) -> Response:
         """호가 정보 조회
 
@@ -2124,6 +2126,7 @@ class Upbit:
         `Upbit API Doc <https://docs.upbit.com/reference/%ED%98%B8%EA%B0%80-%EC%A0%95%EB%B3%B4-%EC%A1%B0%ED%9A%8C>`_
 
         :param markets: 마켓 코드 리스트 (ex. ["KRW-BTC"])
+        :param level: 호가 모아보기 단위 (0인 경우 기본 호가 단위. 해당 기능은 원화마켓(KRW)에서만 지원)
         :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
 
         :return: API 서버 응답
@@ -2139,6 +2142,7 @@ class Upbit:
                 'timestamp': 1676380537532,
                 'total_ask_size': 5.71529774,
                 'total_bid_size': 3.5650408600000008,
+                'level': 0,
                 'orderbook_units':
                     [{'ask_price': 28252000.0, 'bid_price': 28242000.0, 'ask_size': 0.22130992, 'bid_size': 0.69372092},
                     {'ask_price': 28253000.0, 'bid_price': 28241000.0, 'ask_size': 0.51485752, 'bid_size': 0.01781927},
@@ -2160,6 +2164,7 @@ class Upbit:
         url = self._endpoint + "/orderbook"
         params = {
             "markets": markets,
+            "level": level,
         }
 
         return self._request('get', url, params=params, **kwargs)
