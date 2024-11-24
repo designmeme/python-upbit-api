@@ -2168,3 +2168,40 @@ class Upbit:
         }
 
         return self._request('get', url, params=params, **kwargs)
+
+    def get_orderbook_levels(self,
+                             markets: List[str],
+                             **kwargs) -> Response:
+        """호가 모아보기 단위 정보 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/supported_levels>`_
+
+        :param markets: 마켓 코드 리스트 (ex. ["KRW-BTC"])
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :return: API 서버 응답
+
+        Usage::
+
+            upbit = Upbit()
+            res = upbit.get_orderbook_levels(['KRW-BTC'])
+            print(res.json())
+
+            [{
+                "market": "KRW-BTC",
+                "supported_levels": [
+                    0,
+                    10000,
+                    100000,
+                    1000000,
+                    10000000
+                ]
+            }, ...]
+        """
+        url = self._endpoint + "/orderbook/supported_levels"
+        params = {
+            "markets": markets,
+        }
+
+        return self._request('get', url, params=params, **kwargs)
