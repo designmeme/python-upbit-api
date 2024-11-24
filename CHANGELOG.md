@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.7.0](https://github.com/designmeme/python-upbit-api/compare/v1.6.0...v1.7.0) (2024-11-24)
+
+
+### Features
+
+* Upbit.get_orderbook_levels() 호가 모아보기 단위 정보 조회 지원 ([b95ee05](https://github.com/designmeme/python-upbit-api/commit/b95ee05f4473c1a2661b2b79de7c78b85a76c835))
+* Upbit.get_orderbook() 호가 정보 조회에서 level 파라미터 지원 ([ef3b7ae](https://github.com/designmeme/python-upbit-api/commit/ef3b7aebf0232447690b722bcc4b2b533fe11eb7))
+
+
+### Bug Fixes
+
+* HTTP 요청 파라미터 이름 변경 반영 ([2210e21](https://github.com/designmeme/python-upbit-api/commit/2210e2101ab19750dfeaaebd3861a5cc83b4de3a))
+
 ## [1.6.0](https://github.com/designmeme/python-upbit-api/compare/v1.5.1...v1.6.0) (2024-10-31)
 
 
