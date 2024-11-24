@@ -1643,7 +1643,7 @@ class Upbit:
         """
         url = self._endpoint + "/market/all"
         params = {
-            "isDetails": is_detail,
+            "is_details": is_detail,
         }
 
         return self._request('get', url, params=params, **kwargs)
@@ -1795,7 +1795,7 @@ class Upbit:
             "market": market,
             "to": to,
             "count": count,
-            "convertingPriceUnit": converting_price_unit,
+            "converting_price_unit": converting_price_unit,
         }
 
         return self._request('get', url, params=params, **kwargs)
@@ -1992,7 +1992,7 @@ class Upbit:
             "to": to,
             "count": count,
             "cursor": cursor,
-            "daysAgo": days_ago,
+            "days_ago": days_ago,
         }
 
         return self._request('get', url, params=params, **kwargs)
@@ -2106,7 +2106,7 @@ class Upbit:
         """
         url = self._endpoint + "/ticker/all"
         params = {
-            "quoteCurrencies": quotes,
+            "quote_currencies": quotes,
         }
 
         return self._request('get', url, params=params, **kwargs)
