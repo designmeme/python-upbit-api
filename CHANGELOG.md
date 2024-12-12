@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/designmeme/python-upbit-api/compare/v1.7.0...v1.8.0) (2024-12-12)
+
+
+### Features
+
+* Upbit.delete_orders() 주문 일괄 취소 접수, Upbit.delete_orders_by_id() id로 주문리스트 취소 접수 메서드 추가 ([1318b64](https://github.com/designmeme/python-upbit-api/commit/1318b64224436a96e79eaf7ae27629551096604b))
+
 ## [1.7.0](https://github.com/designmeme/python-upbit-api/compare/v1.6.0...v1.7.0) (2024-11-24)
 
 
