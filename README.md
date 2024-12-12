@@ -73,6 +73,8 @@ data = res.json()
 |  | 체결 대기 주문 (Open Order) 조회     | get_open_orders            |
 |  | 종료된 주문 (Closed Order) 조회     | get_closed_orders          |
 |  | 주문 취소 접수                     | delete_order               |
+|  | 주문 일괄 취소 접수 | delete_orders |
+|  | id로 주문리스트 취소 접수 | delete_orders_by_id |
 |  | 주문하기                         | create_order               |
 | 출금 | 출금 리스트 조회                    | get_withdraws              |
 |  | 개별 출금 조회                     | get_withdraw               |

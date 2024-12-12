@@ -721,6 +721,133 @@ class Upbit:
 
         return self._request('delete', url, headers=headers, params=params, **kwargs)
 
+    def delete_orders(
+            self,
+            *,
+            cancel_side: Literal['all', 'ask', 'bid'] = 'all',
+            pairs: List[str] = None,
+            excluded_pairs: List[str] = None,
+            quote_currencies: List[str] = None,
+            count: int = 20,
+            order_by: OrderBy = 'desc',
+            **kwargs) -> Response:
+        """주문 일괄 취소 접수
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/%EC%A3%BC%EB%AC%B8-%EC%9D%BC%EA%B4%84-%EC%B7%A8%EC%86%8C-%EC%A0%91%EC%88%98>`_
+
+        :param cancel_side: 주문 종류
+        :param pairs: 취소할 마켓 코드 리스트 (ex. ["KRW-BTC"])
+        :param excluded_pairs: 제외할 마켓 코드 리스트 (ex. ["KRW-BTC"])
+        :param quote_currencies: 취소할 거래 화폐 리스트 (ex. ["KRW", "BTC"])
+        :param count: 취소 접수할 주문의 최대 개수 (default : 20, max : 300)
+        :param order_by: 정렬 방식
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.delete_orders(cancel_side='all')
+            print(res.json())
+
+            {
+              "success": {
+                "count": 2,
+                "orders": [
+                  {
+                    "uuid": "bbbb8e07-1689-4769-af3e-a117016623f8",
+                    "market": "KRW-ETH"
+                  },
+                  {
+                    "uuid": "4312ba49-5f1a-4a01-9f3b-2d2bce17267e",
+                    "market": "KRW-ETH"
+                  }
+                ]
+              },
+              "failed": {
+                "count": 1,
+                "orders": [
+                  {
+                    "uuid": "bdb49a54-de36-4eb4-a963-9c8d4337a9da",
+                    "market": "BTC-XRP"
+                  }
+                ]
+              }
+            }
+        """
+        url = self._endpoint + "/orders/open"
+        params = {
+            "cancel_side": cancel_side,
+            "pairs": pairs,
+            "excluded_pairs": excluded_pairs,
+            "quote_currencies": quote_currencies,
+            "count": count,
+            "order_by": order_by,
+        }
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
+
+        return self._request('delete', url, headers=headers, params=params, **kwargs)
+
+    def delete_orders_by_id(
+            self,
+            *,
+            uuids: Optional[List[str]] = None,
+            identifiers: Optional[List[str]] = None,
+            **kwargs) -> Response:
+        """id로 주문리스트 취소 접수
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/reference/id%EB%A1%9C-%EC%A3%BC%EB%AC%B8%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EC%B7%A8%EC%86%8C-%EC%A0%91%EC%88%98>`_
+
+        .. note:: uuids 또는 identifiers 중 한 가지 필드는 필수이며, 두 가지 필드를 함께 사용할 수 없습니다.
+
+        :param uuids: 취소할 주문 UUID의 목록 (최대 20개)
+        :param identifiers: 취소할 주문 identifier의 목록 (최대 20개)
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :raises upbit.exceptions.ApiKeyError: 인증 정보 없이 호출시 발생.
+
+        :return: API 서버 응답
+
+        Usage::
+
+            access_key = os.environ.get('UPBIT_OPEN_API_ACCESS_KEY')
+            secret_key = os.environ.get('UPBIT_OPEN_API_SECRET_KEY')
+            upbit = Upbit(access_key, secret_key)
+            res = upbit.delete_orders_by_id(uuids=['6c1eac69-b9bc-4fbf-9982-e9c4641c453f'])
+            print(res.json())
+
+            {
+              "success": {
+                "count": 1,
+                "orders": [
+                  {
+                    "uuid": "6c1eac69-b9bc-4fbf-9982-e9c4641c453f",
+                    "market": "BTC-ADA"
+                  },
+                ]
+              },
+              "failed": {
+                "count": 0,
+                "orders": []
+              }
+            }
+        """
+        url = self._endpoint + "/orders/uuids"
+        params = {
+            "uuids": uuids,
+            "identifiers": identifiers,
+        }
+        headers = self._get_request_headers(params, headers=kwargs.pop('headers', None))
+
+        return self._request('delete', url, headers=headers, params=params, **kwargs)
+
     def create_order(self,
                      market: str,
                      side: OrderSide,
