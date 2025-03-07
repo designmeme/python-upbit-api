@@ -600,7 +600,7 @@ class Upbit:
     def get_closed_orders(self,
                           *,
                           market: Optional[str] = None,
-                          state: ClosedOrderState = 'done',
+                          state: ClosedOrderState | None = None,
                           states: Optional[List[ClosedOrderState]] = None,
                           start_time: Optional[str] = None,
                           end_time: Optional[str] = None,
