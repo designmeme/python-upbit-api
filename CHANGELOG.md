@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.1](https://github.com/designmeme/python-upbit-api/compare/v1.8.0...v1.8.1) (2025-06-05)
+
+
+### Bug Fixes
+
+* Upbit.get_closed_orders 메소드에서 state 기본값을 불필요하게 지정한 문제 수정 ([16809c6](https://github.com/designmeme/python-upbit-api/commit/16809c6e230a43d2ee0d5114e643dd792bf5d642))
+* 분, 연 캔들 요청 url 오류 수정 ([0f4a370](https://github.com/designmeme/python-upbit-api/commit/0f4a3702152b5a2e3715a5467282196832e50c0f))
+
 ## [1.8.0](https://github.com/designmeme/python-upbit-api/compare/v1.7.0...v1.8.0) (2024-12-12)
 
 
