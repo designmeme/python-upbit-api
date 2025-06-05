@@ -1865,7 +1865,7 @@ class Upbit:
                 "candle_acc_trade_volume": 0.0051944
             }, ...]
         """
-        url = self._endpoint + "/candles/seconds/"
+        url = self._endpoint + "/candles/seconds"
         params = {
             "market": market,
             "to": to,
@@ -2030,7 +2030,7 @@ class Upbit:
         """연(Year) 캔들 조회
 
         API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
-        `Upbit API Doc <https://docs.upbit.com/reference/%EB%85%84year-%EC%BA%94%EB%93%A4>`_
+        `Upbit API Doc <https://docs.upbit.com/kr/reference/%EB%85%84year-%EC%BA%94%EB%93%A4>`_
 
         :param market: 마켓 코드 (ex. KRW-BTC)
         :param to: 마지막 캔들 시각 (exclusive). 포맷 : yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd HH:mm:ss. 비워서 요청시 가장 최근 캔들
@@ -2042,7 +2042,7 @@ class Upbit:
         Usage::
 
             upbit = Upbit()
-            res = upbit.get_candles_second('KRW-BTC')
+            res = upbit.get_candles_year('KRW-BTC')
             print(res.json())
 
             [{
@@ -2059,7 +2059,7 @@ class Upbit:
                 "first_day_of_period": "2024-01-01"
             }, ...]
         """
-        url = self._endpoint + "/candles/years/"
+        url = self._endpoint + "/candles/years"
         params = {
             "market": market,
             "to": to,
