@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/designmeme/python-upbit-api/compare/v1.8.1...v1.9.0) (2025-07-31)
+
+
+### Features
+
+* Upbit.get_orderbook_instruments() 호가 정책 조회 지원 ([c07e0dc](https://github.com/designmeme/python-upbit-api/commit/c07e0dc10b4c840e16025aa11dfddfadfe300c5c))
+
 ## [1.8.1](https://github.com/designmeme/python-upbit-api/compare/v1.8.0...v1.8.1) (2025-06-05)
 
 
