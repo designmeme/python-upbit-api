@@ -10,7 +10,7 @@ include = ["upbit*"]  # ["*"] by default
 
 [project]
 name = "python-upbit-api"
-version = "1.8.1"
+version = "1.9.0"
 authors = [
     {name = "이지혜 Lee Jihye", email = "ghe.lee19@gmail.com"},
 ]
