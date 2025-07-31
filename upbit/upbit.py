@@ -11,6 +11,7 @@ import jwt
 import requests
 from requests import Response
 from requests.adapters import HTTPAdapter
+from typing_extensions import deprecated
 
 from .exceptions import (
     _ERROR_EXCEPTION_DICT,
@@ -2296,6 +2297,7 @@ class Upbit:
 
         return self._request('get', url, params=params, **kwargs)
 
+    @deprecated
     def get_orderbook_levels(self,
                              markets: List[str],
                              **kwargs) -> Response:
@@ -2327,6 +2329,46 @@ class Upbit:
             }, ...]
         """
         url = self._endpoint + "/orderbook/supported_levels"
+        params = {
+            "markets": markets,
+        }
+
+        return self._request('get', url, params=params, **kwargs)
+
+    def get_orderbook_instruments(self,
+                                  markets: List[str],
+                                  **kwargs) -> Response:
+        """호가 정책 조회
+
+        API 요청 및 응답에 대한 자세한 정보는 공식 문서 참고:
+        `Upbit API Doc <https://docs.upbit.com/kr/reference/%ED%98%B8%EA%B0%80-%EC%A0%95%EC%B1%85-%EC%A1%B0%ED%9A%8C>`_
+
+        :param markets: 마켓 코드 리스트 (ex. ["KRW-BTC"])
+        :param kwargs: `requests.Session.request` 호출에 사용할 파라미터
+
+        :return: API 서버 응답
+
+        Usage::
+
+            upbit = Upbit()
+            res = upbit.get_orderbook_instruments(['KRW-BTC'])
+            print(res.json())
+
+            [{
+                "market": "KRW-BTC",
+                "quote_currency": "KRW",
+                "tick_size": "1000",
+                "supported_levels": [
+                    "0",
+                    "10000",
+                    "100000",
+                    "1000000",
+                    "10000000",
+                    "100000000"
+                ]
+            }, ...]
+        """
+        url = self._endpoint + "/orderbook/instruments"
         params = {
             "markets": markets,
         }

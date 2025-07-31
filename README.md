@@ -105,6 +105,7 @@ data = res.json()
 | 시세 현재가 조회 | 마켓 단위 현재가 정보                 | get_tickers_by_quote       |
 | 시세 호가 조회 | 호가 정보                        | get_orderbook              |
 |  | 호가 모아보기 단위 정보                        | get_orderbook_levels       |
+|  | 호가 정책 조회                        | get_orderbook_instruments       |
 
 ### Requests 사용
 [Requests][requests] 라이브러리를 사용합니다.
