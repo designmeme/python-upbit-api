@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/designmeme/python-upbit-api/compare/v1.9.0...v1.9.1) (2025-08-13)
+
+
+### Bug Fixes
+
+* [@deprecated](https://github.com/deprecated) 데코레이터에 메세지 추가 ([13a1f79](https://github.com/designmeme/python-upbit-api/commit/13a1f792547b2d4b57fc06c6adc1d55a37284447))
+
 ## [1.9.0](https://github.com/designmeme/python-upbit-api/compare/v1.8.1...v1.9.0) (2025-07-31)
 
 
