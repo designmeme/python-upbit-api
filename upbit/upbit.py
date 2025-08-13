@@ -2297,7 +2297,7 @@ class Upbit:
 
         return self._request('get', url, params=params, **kwargs)
 
-    @deprecated
+    @deprecated("Use get_orderbook_instruments method instead.")
     def get_orderbook_levels(self,
                              markets: List[str],
                              **kwargs) -> Response:
